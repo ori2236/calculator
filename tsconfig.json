@@ -1,0 +1,14 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ],
+  "noUnusedLocals": true,
+  "compilerOptions": {
+    "module": "ESNext",
+    "types": ["node"],
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+  },
+}
