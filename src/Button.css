@@ -1,0 +1,9 @@
+ i {
+  font-size: 18px;
+}
+
+.label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

@@ -1,0 +1,17 @@
+.display {
+  width: 90%;
+}
+.expressionLine {
+  font-size: clamp(30px, 5vw, 50px);
+  padding-top: 15px;
+  overflow: hidden; /*the expression half disappear when out of frame*/
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0;
+}
+
+.answerLine {
+  font-size: clamp(20px, 5vw, 30px);
+  display: flex;
+  justify-content: flex-end;
+}
