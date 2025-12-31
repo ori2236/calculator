@@ -7,7 +7,7 @@
   "noUnusedLocals": true,
   "compilerOptions": {
     "module": "ESNext",
-    "types": ["node"],
+    "types": ["vitest/globals", "node"],
     "jsx": "react-jsx",
     "esModuleInterop": true,
   },

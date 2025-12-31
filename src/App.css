@@ -10,7 +10,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: max(15%, 200px);
+  width: max(30%, 200px);
   border: 2px solid black;
   border-radius: 20px;
 }

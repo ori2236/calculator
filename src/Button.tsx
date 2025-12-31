@@ -11,7 +11,6 @@ const getIconClassIfNeeded: Record<string, string> = {
 
 export const Button = ({ label }: LabelType) => {
     const iconClass = getIconClassIfNeeded[label];
-
     return (
         <div className="label">
             {iconClass ? (<i className={`${label} ${iconClass}`} />) : (label)}

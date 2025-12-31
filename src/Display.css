@@ -5,6 +5,7 @@
   font-size: clamp(30px, 5vw, 50px);
   padding-top: 15px;
   overflow: hidden; /*the expression half disappear when out of frame*/
+  white-space: nowrap; /*keeps the expression in one line*/
   display: flex;
   justify-content: flex-end;
   margin-top: 0;
