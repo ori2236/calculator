@@ -1,6 +1,7 @@
 import "./Button.css"
 
-type LabelType = {
+type ButtonPropsType = {
+    onPress: (label: string) => void;
     label: string;
 };
 
@@ -9,11 +10,17 @@ const getIconClassIfNeeded: Record<string, string> = {
     "*": "fa-solid fa-xmark",
 };
 
-export const Button = ({ label }: LabelType) => {
+export const Button = ({ label, onPress }: ButtonPropsType) => {
     const iconClass = getIconClassIfNeeded[label];
+
     return (
-        <div className="label">
-            {iconClass ? (<i className={`${label} ${iconClass}`} />) : (label)}
-        </div>
+        <button
+            type="button"
+            //when the user clicked the focus move to the button, this line prevents it
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => onPress(label)}
+        >
+            {iconClass ? (<i className={`${label}Class ${iconClass}`} />) : (label)}
+        </button>
     );
 }

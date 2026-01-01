@@ -4,13 +4,3 @@
   gap: 10px;
   padding-bottom: 10px;
 }
-
-.grid-item {
-  background-color: #eee;
-  border-radius: 50%;
-  font-size: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
