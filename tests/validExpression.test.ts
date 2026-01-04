@@ -3,6 +3,17 @@ import { validateExpression } from "../src/calcExpression";
 import type { IsValidType } from "../src/calcExpression";
 
 describe("the expression should stay the same", () => {
+  test("invalid characters in the expression", () => {
+    const expression = "10a+2*5+!2";
+    const expected: IsValidType = {
+      canBeCalc: true,
+      validExpression: expression,
+    };
+
+    const validExpression = validateExpression(expression);
+    expect(validExpression).toEqual(expected);
+  });
+
   test("valid expression without bracket", () => {
     const expression = "10+2*5+2";
     const expected: IsValidType = {
@@ -41,6 +52,28 @@ describe("the expression should stay the same", () => {
     const expected: IsValidType = {
       canBeCalc: true,
       validExpression: "2*(3+(4*(5-1)))",
+    };
+
+    const validExpression = validateExpression(expression);
+    expect(validExpression).toEqual(expected);
+  });
+
+  test("closing bracket after operator, should return that cannot be calculated", () => {
+    const expression = "1+(5+(2+)";
+    const expected: IsValidType = {
+      canBeCalc: false,
+      validExpression: "1+(5+(2+)",
+    };
+
+    const validExpression = validateExpression(expression);
+    expect(validExpression).toEqual(expected);
+  });
+
+  test("empty brackets should be invalid, should return that cannot be calculated", () => {
+    const expression = "1+()+2";
+    const expected: IsValidType = {
+      canBeCalc: false,
+      validExpression: "1+()+2",
     };
 
     const validExpression = validateExpression(expression);
@@ -138,8 +171,8 @@ describe("the expression should change in the middle", () => {
   });
 });
 
-describe("the expression contains uneven amount of opening and closing brackets", () => {
-  test("more openning brackets than closing", () => {
+describe("the expression contains uneven amount of opening and closing brackets or brackets in incorrect order", () => {
+  test("more openning brackets than closing, should return that cannot be calculated", () => {
     const expression = "1+(5+(4+1)";
     const expected: IsValidType = {
       canBeCalc: false,
@@ -150,11 +183,22 @@ describe("the expression contains uneven amount of opening and closing brackets"
     expect(validExpression).toEqual(expected);
   });
 
-  test("more closing brackets than opening", () => {
+  test("more closing brackets than opening, should return that cannot be calculated", () => {
     const expression = "1+(5+(4+1)+6)-4)+5";
     const expected: IsValidType = {
       canBeCalc: false,
       validExpression: "1+(5+(4+1)+6)-4)+5",
+    };
+
+    const validExpression = validateExpression(expression);
+    expect(validExpression).toEqual(expected);
+  });
+
+  test("brackets with only operator, should return that cannot be calculated", () => {
+    const expression = "1+(+)+2";
+    const expected: IsValidType = {
+      canBeCalc: false,
+      validExpression: "1+(+)+2",
     };
 
     const validExpression = validateExpression(expression);

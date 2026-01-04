@@ -3,6 +3,10 @@ export type IsValidType = {
   validExpression: string;
 };
 
+export const validBrackets = (expression: string): boolean => {
+  return false;
+};
+
 export const validateExpression = (expression: string): IsValidType => {
   return { canBeCalc: false, validExpression: expression };
 };
