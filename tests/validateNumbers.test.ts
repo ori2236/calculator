@@ -35,12 +35,6 @@ describe("should join the digits and decimal points and return valid numbers in 
     expect(validExpression).toEqual(expected);
   });
 
-  test("valid integers numbers, should join all the digits", () => {
-    const expression = "5+03";
-    const validExpression = validNumbers(expression);
-    expect(validExpression).toEqual(["5", "+", "3"]);
-  });
-
   test("a number start with '0', should delete the '0'", () => {
     const expression = "5+03";
     const expected: IsValidExpressionType = {
