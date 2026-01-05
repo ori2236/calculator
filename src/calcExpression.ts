@@ -1,10 +1,9 @@
-export type IsValidType = {
+export type IsValidExpressionType = {
   canBeCalc: boolean;
-  validExpression: string;
+  validExpression: string[];
 };
 
-export const validBrackets = (expression: string): boolean => {
-  const expressionArray = [...expression];
+export const validBrackets = (expressionArray: string[]): boolean => {
   try {
     const counter = expressionArray.reduce((counter, char) => {
       if (char === "(") counter++;
@@ -17,14 +16,17 @@ export const validBrackets = (expression: string): boolean => {
 
     if (counter != 0) return false;
     return true;
-    
   } catch (e) {
     return false;
   }
 };
 
-export const validateExpression = (expression: string): IsValidType => {
-  return { canBeCalc: false, validExpression: expression };
+export const validNumbers = (expression: string): IsValidExpressionType => {
+  return { canBeCalc: false, validExpression: [...expression] };
+};
+
+export const validateExpression = (expression: string): IsValidExpressionType => {
+  return { canBeCalc: false, validExpression: [...expression] };
 };
 
 export const calcExpression = (expression: string): number | null => {
