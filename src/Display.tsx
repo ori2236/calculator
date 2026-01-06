@@ -42,8 +42,8 @@ function keepCaretVisible(input: HTMLInputElement, pos: number) {
 }
 
 export const Display = ({ expression, setExpression, inputRef, cursorPositionRef, answer }: DisplayProps) => {
-    //we are using this because we want the curser will be set after
-    // the DOM is rendering and before the browser paints the screen
+    //we are using useLayoutEffect because we want the curser will be set after
+    //the DOM is rendering and before the browser paints the screen
     useLayoutEffect(() => {
         const inputObject = inputRef.current;
         const cursorPosition = cursorPositionRef.current;

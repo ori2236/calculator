@@ -35,7 +35,7 @@ export const validNumbers = (expression: string): IsValidExpressionType => {
   if no matches returns null so i added '?? []'
   */
   const splitExpression = expression.match(/[0-9.]+|[+\-*/()]/g) ?? [];
-  const validExpression = splitExpression.map((char, index) => {
+  const validExpression = splitExpression.map((char) => {
     /*
     ^ : from the begginig of the string
     $ : to the ending of the string
@@ -54,8 +54,9 @@ export const validNumbers = (expression: string): IsValidExpressionType => {
       const after = char.slice(firstDecimalPointIndex + 1).replaceAll(".", "");
       char = before + after;
     }
-    char = char.replace(/^0+(?=\d)/, "");
-    return char;
+    //if the expression have 0's at the begging delete them
+    //0 one or more and then digits, the digits is just for checking
+    return char.replace(/^0+(?=[0-9])/, "");
   });
 
   //cheking every item in the array that if he numeric and end with '.' (for example 5.)
@@ -69,7 +70,85 @@ export const validNumbers = (expression: string): IsValidExpressionType => {
 export const validateExpression = (
   expression: string
 ): IsValidExpressionType => {
-  return { canBeCalc: false, validExpression: [...expression] };
+  const expressionArray = [...expression];
+  if (!expression || !/[+\-*/()]/.test(expression))
+    return { canBeCalc: false, validExpression: expressionArray }; 
+  //remove all the invalid chars
+  const validCharsExpression = expressionArray.filter((char) =>
+    /[0-9.+\-*/()]/.test(char)
+  );
+
+  //if the brackets isn't valid return that can't be calculate
+  if (!validBrackets(validCharsExpression))
+    return { canBeCalc: false, validExpression: validCharsExpression };
+
+  //validate the numbers and join the digits togther
+  const { canBeCalc, validExpression: validNumbersExpression } = validNumbers(
+    validCharsExpression.join("")
+  );
+
+  if (!canBeCalc) return { canBeCalc, validExpression: validNumbersExpression };
+
+  const validNumbersExpressionString = validNumbersExpression.join("");
+  //if there is a closing brackets after operator return that can't be calculate
+  if (/[+\-*/]\)/.test(validNumbersExpressionString))
+    return { canBeCalc: false, validExpression: validNumbersExpression };
+
+  //if the expression contain empty brackets
+  // \ : because brackets are special notes
+  if (/\(\)/.test(validNumbersExpressionString))
+    return { canBeCalc: false, validExpression: validNumbersExpression };
+
+  const deleteAdjacentOperators = validNumbersExpression.flatMap(
+    (char, index, arr) => {
+      if (index === arr.length-1) return [char];
+      const pattern = /[+\-*/]/;
+      const exceptionPattern = /[*/]/;
+      const nextChar = arr[index + 1];
+      //any two adjust operators is invalid except where it's /- or *-
+      const isTwoAdjustOperator = pattern.test(char) && pattern.test(nextChar);
+      const isException = exceptionPattern.test(char) && nextChar === "-";
+      return isTwoAdjustOperator && !isException ? [] : [char];
+    }
+  );
+
+  // the expression ends with operator
+  if (/[+\-*/]$/.test(deleteAdjacentOperators.join("")))
+    return {
+      canBeCalc: false,
+      validExpression: deleteAdjacentOperators,
+    };
+
+  const deleteOperatorAdjustToOpeningBracket = deleteAdjacentOperators.flatMap(
+    (char, index, arr) => {
+      if (index === 0) return [char];
+      const pattern = /[+*/]/;
+      const previousChar = arr[index - 1];
+      const isOperatorAdjustToOpeningBracket =
+        previousChar === "(" && pattern.test(char);
+
+      return isOperatorAdjustToOpeningBracket ? [] : [char];
+    }
+  );
+
+  const firstCharPattern = /\)|[0-9.]+/;
+  const secondCharPattern = /[0-9.]+|\(/;
+
+  const addMultiplicationOperator =
+    deleteOperatorAdjustToOpeningBracket.flatMap((char, index, arr) => {
+      if (index === 0) return [char];
+      const previousChar = arr[index - 1];
+      const isMultipicationOperatorNeeded =
+        firstCharPattern.test(previousChar) && secondCharPattern.test(char);
+
+      //adding '*' before the char
+      return isMultipicationOperatorNeeded ? ["*", char] : [char];
+    });
+
+  return {
+    canBeCalc: true,
+    validExpression: addMultiplicationOperator,
+  };
 };
 
 export const calcExpression = (expression: string): number | null => {
