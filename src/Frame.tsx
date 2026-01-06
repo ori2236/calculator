@@ -13,6 +13,12 @@ export const Frame = () => {
   //we are using useLayoutEffect because we want the expression will be set after
   //the DOM is rendering and before the browser paints the screen
   useLayoutEffect(() => {
+    //the expression is empty or contain only numbers
+    if (!expression || /^[0-9.]+$/.test(expression)){
+      setAnswer(null);
+      return;
+    }
+
     validateExpression(expression)
     const { canBeCalc, validExpression } = validateExpression(expression);
     canBeCalc ? setAnswer(1) : setAnswer(null);

@@ -71,8 +71,10 @@ export const validateExpression = (
   expression: string
 ): IsValidExpressionType => {
   const expressionArray = [...expression];
-  if (!expression || !/[+\-*/()]/.test(expression))
-    return { canBeCalc: false, validExpression: expressionArray }; 
+  const numberPattern = () => /[0-9.]+/;
+  const openBracket = () => /\)/;
+  const closeBracket = () => /\(/;
+
   //remove all the invalid chars
   const validCharsExpression = expressionArray.filter((char) =>
     /[0-9.+\-*/()]/.test(char)
@@ -83,71 +85,75 @@ export const validateExpression = (
     return { canBeCalc: false, validExpression: validCharsExpression };
 
   //validate the numbers and join the digits togther
-  const { canBeCalc, validExpression: validNumbersExpression } = validNumbers(
-    validCharsExpression.join("")
-  );
+  const {
+    canBeCalc: allNumbersAreValids,
+    validExpression: validNumbersExpression,
+  } = validNumbers(validCharsExpression.join(""));
 
-  if (!canBeCalc) return { canBeCalc, validExpression: validNumbersExpression };
+  const str = validNumbersExpression.join("");
+  const invalidChecks = () =>
+    //the expression contain invalid number
+    !allNumbersAreValids ||
+    //the expression contain brackets after operator
+    /[+\-*/]\)/.test(str) ||
+    //the expression contain empty brackets
+    /\(\)/.test(str);
 
-  const validNumbersExpressionString = validNumbersExpression.join("");
-  //if there is a closing brackets after operator return that can't be calculate
-  if (/[+\-*/]\)/.test(validNumbersExpressionString))
+  if (invalidChecks())
     return { canBeCalc: false, validExpression: validNumbersExpression };
 
-  //if the expression contain empty brackets
-  // \ : because brackets are special notes
-  if (/\(\)/.test(validNumbersExpressionString))
-    return { canBeCalc: false, validExpression: validNumbersExpression };
+  const operatorPattern = /[+\-*/]/;
+  const exceptionPattern = /[*/]/;
+  const operatorWithoutMinusPattern = /[+*/]/;
+  const numbersAndOpenBracketPattern = /\)|[0-9.]+/;
+  const numbersAndcloseBracketPattern = /\(|[0-9.]+/;
 
   const deleteAdjacentOperators = validNumbersExpression.flatMap(
     (char, index, arr) => {
-      if (index === arr.length-1) return [char];
-      const pattern = /[+\-*/]/;
-      const exceptionPattern = /[*/]/;
+      if (index === arr.length - 1) return [char];
       const nextChar = arr[index + 1];
       //any two adjust operators is invalid except where it's /- or *-
-      const isTwoAdjustOperator = pattern.test(char) && pattern.test(nextChar);
+      const isTwoAdjustOperator =
+        operatorPattern.test(char) && operatorPattern.test(nextChar);
       const isException = exceptionPattern.test(char) && nextChar === "-";
       return isTwoAdjustOperator && !isException ? [] : [char];
     }
   );
 
-  // the expression ends with operator
+  //the expression ends with operator
   if (/[+\-*/]$/.test(deleteAdjacentOperators.join("")))
-    return {
-      canBeCalc: false,
-      validExpression: deleteAdjacentOperators,
-    };
+    return { canBeCalc: false, validExpression: deleteAdjacentOperators };
 
-  const deleteOperatorAdjustToOpeningBracket = deleteAdjacentOperators.flatMap(
+  /*
+  delete the operator that adjust to the opening bracket if exist and
+  checking if a multiplication operator needs to be added
+
+  if the first previous char is '(' so for sure multiplication operator is no needed
+  */
+  const validExpression = deleteAdjacentOperators.flatMap(
     (char, index, arr) => {
       if (index === 0) return [char];
-      const pattern = /[+*/]/;
       const previousChar = arr[index - 1];
-      const isOperatorAdjustToOpeningBracket =
-        previousChar === "(" && pattern.test(char);
 
-      return isOperatorAdjustToOpeningBracket ? [] : [char];
-    }
-  );
+      const isOpeningBracketAdjustToOperator =
+        previousChar === "(" && operatorWithoutMinusPattern.test(char);
 
-  const firstCharPattern = /\)|[0-9.]+/;
-  const secondCharPattern = /[0-9.]+|\(/;
+      //delete the operator that adjust to the opening bracket if exist
+      if (isOpeningBracketAdjustToOperator) return [];
 
-  const addMultiplicationOperator =
-    deleteOperatorAdjustToOpeningBracket.flatMap((char, index, arr) => {
-      if (index === 0) return [char];
-      const previousChar = arr[index - 1];
+      //checking if a multiplication operator needs to be added
       const isMultipicationOperatorNeeded =
-        firstCharPattern.test(previousChar) && secondCharPattern.test(char);
+        numbersAndOpenBracketPattern.test(previousChar) &&
+        numbersAndcloseBracketPattern.test(char);
 
       //adding '*' before the char
       return isMultipicationOperatorNeeded ? ["*", char] : [char];
-    });
+    }
+  );
 
   return {
     canBeCalc: true,
-    validExpression: addMultiplicationOperator,
+    validExpression,
   };
 };
 
