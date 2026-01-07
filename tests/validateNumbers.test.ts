@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest";
-import { IsValidExpressionType, validNumbers } from "../src/calcExpression";
+import { IsValidExpressionType, validateNumbers } from "../src/calcExpression";
 
 describe("should join the digits and decimal points and return valid numbers in the expression", () => {
   test("valid integers numbers, should join all the digits", () => {
@@ -9,7 +9,7 @@ describe("should join the digits and decimal points and return valid numbers in 
       validExpression: ["25", "+", "43", "*", "(", "12", "-", "89", ")"],
     };
 
-    const validExpression = validNumbers(expression);
+    const validExpression = validateNumbers(expression);
     expect(validExpression).toEqual(expected);
   });
 
@@ -20,18 +20,18 @@ describe("should join the digits and decimal points and return valid numbers in 
       validExpression: ["25.4", "+", "43", "*", "(", "12.8", "-", "89", ")"],
     };
 
-    const validExpression = validNumbers(expression);
+    const validExpression = validateNumbers(expression);
     expect(validExpression).toEqual(expected);
   });
 
   test("a number contain '0' at the middle shouldn't delete the '0'", () => {
-    const expression = "503";
+    const expression = "503+2";
     const expected: IsValidExpressionType = {
       canBeCalc: true,
-      validExpression: ["503"],
+      validExpression: ["503", "+", "2"],
     };
 
-    const validExpression = validNumbers(expression);
+    const validExpression = validateNumbers(expression);
     expect(validExpression).toEqual(expected);
   });
 
@@ -42,7 +42,7 @@ describe("should join the digits and decimal points and return valid numbers in 
       validExpression: ["5", "+", "3"],
     };
 
-    const validExpression = validNumbers(expression);
+    const validExpression = validateNumbers(expression);
     expect(validExpression).toEqual(expected);
   });
 
@@ -53,7 +53,18 @@ describe("should join the digits and decimal points and return valid numbers in 
       validExpression: ["0.0005", "-", "2"],
     };
 
-    const validExpression = validNumbers(expression);
+    const validExpression = validateNumbers(expression);
+    expect(validExpression).toEqual(expected);
+  });
+
+  test("a number contain '0' after decimal point at the end should delete the '0'", () => {
+    const expression = "0.0005-2.0100+2";
+    const expected: IsValidExpressionType = {
+      canBeCalc: true,
+      validExpression: ["0.0005", "-", "2.01", "+", "2"],
+    };
+
+    const validExpression = validateNumbers(expression);
     expect(validExpression).toEqual(expected);
   });
 
@@ -64,7 +75,7 @@ describe("should join the digits and decimal points and return valid numbers in 
       validExpression: ["95.88", "+", "1.23"],
     };
 
-    const validExpression = validNumbers(expression);
+    const validExpression = validateNumbers(expression);
     expect(validExpression).toEqual(expected);
   });
 
@@ -75,7 +86,7 @@ describe("should join the digits and decimal points and return valid numbers in 
       validExpression: ["2", "+", "95.123456789"],
     };
 
-    const validExpression = validNumbers(expression);
+    const validExpression = validateNumbers(expression);
     expect(validExpression).toEqual(expected);
   });
 
@@ -86,7 +97,7 @@ describe("should join the digits and decimal points and return valid numbers in 
       validExpression: ["24", "+", "0.5", "-", "0.496"],
     };
 
-    const validExpression = validNumbers(expression);
+    const validExpression = validateNumbers(expression);
     expect(validExpression).toEqual(expected);
   });
 
@@ -97,7 +108,7 @@ describe("should join the digits and decimal points and return valid numbers in 
       validExpression: ["24", "+", "5.", "-", "496."],
     };
 
-    const validExpression = validNumbers(expression);
+    const validExpression = validateNumbers(expression);
     expect(validExpression).toEqual(expected);
   });
 });

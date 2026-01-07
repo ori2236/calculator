@@ -21,9 +21,8 @@ export const validBrackets = (expressionArray: string[]): boolean => {
   }
 };
 
-export const validNumbers = (expression: string): IsValidExpressionType => {
+export const validateNumbers = (expression: string): IsValidExpressionType => {
   /*
-  spliting by -, +, *, /, ( ,) and keepng them in the array
   [] : only one char
   + : one or more notes
   0-9 : digits
@@ -34,28 +33,42 @@ export const validNumbers = (expression: string): IsValidExpressionType => {
 
   if no matches returns null so i added '?? []'
   */
-  const splitExpression = expression.match(/[0-9.]+|[+\-*/()]/g) ?? [];
-  const validExpression = splitExpression.map((char) => {
+
+  //spliting by -, +, *, /, ( ,) and keepng them in an array
+  const splitExpression: string[] =
+    expression.match(/[0-9.]+|[+\-*/()]/g) ?? [];
+
+  //validate the all the numbers
+  const validExpression = splitExpression.map((char, index, arr) => {
     /*
     ^ : from the begginig of the string
     $ : to the ending of the string
-    [] : only one char
-    0-9 : digits
-    +,/,* : operators
-    \- : since - is for range (like 0-9) we need '\' before the '-'
-    (,) : brackets
-    + : one or more notes
     */
+    //if not a number continue
     if (!/^[0-9.]+$/.test(char)) return char;
+
+    //if a number start with decimal point add zero fefore
     if (char.startsWith(".")) char = "0" + char;
+
+    //delete all the decimal point except the first one
     const firstDecimalPointIndex = char.indexOf(".");
     if (firstDecimalPointIndex !== -1) {
       const before = char.slice(0, firstDecimalPointIndex + 1);
       const after = char.slice(firstDecimalPointIndex + 1).replaceAll(".", "");
       char = before + after;
     }
-    //if the expression have 0's at the begging delete them
-    //0 one or more and then digits, the digits is just for checking
+
+    //if the number have decimal point and ends eith 0's
+    //and there is operator or brackets after the number
+    const nextChar = arr[index + 1];
+    if (/(\.\d*?)0+$/.test(char) && /[+\-*/()]/.test(nextChar)) {
+      //0 one or more and then digits at the end of the number after decimal point
+      char = char.replace(/0+$/, "");
+      //if the number is ending with decimal points delete it
+      char = char.replace(/\.$/, "");
+    }
+
+    //0 one or more and then digits at the begginig of the number before decimal point, the digits is just for checking
     return char.replace(/^0+(?=[0-9])/, "");
   });
 
@@ -64,17 +77,15 @@ export const validNumbers = (expression: string): IsValidExpressionType => {
   const canBeCalc = validExpression.every((char) => {
     return !(/^[0-9.]+$/.test(char) && /\.$/.test(char));
   });
-  return { canBeCalc, validExpression };
+
+  //if the expression is empty or contain only one char can not calculate
+  return { canBeCalc: canBeCalc && validExpression.length > 1, validExpression };
 };
 
 export const validateExpression = (
   expression: string
 ): IsValidExpressionType => {
   const expressionArray = [...expression];
-  const numberPattern = () => /[0-9.]+/;
-  const openBracket = () => /\)/;
-  const closeBracket = () => /\(/;
-
   //remove all the invalid chars
   const validCharsExpression = expressionArray.filter((char) =>
     /[0-9.+\-*/()]/.test(char)
@@ -88,7 +99,7 @@ export const validateExpression = (
   const {
     canBeCalc: allNumbersAreValids,
     validExpression: validNumbersExpression,
-  } = validNumbers(validCharsExpression.join(""));
+  } = validateNumbers(validCharsExpression.join(""));
 
   const str = validNumbersExpression.join("");
   const invalidChecks = () =>

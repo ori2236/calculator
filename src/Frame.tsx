@@ -14,7 +14,7 @@ export const Frame = () => {
   //the DOM is rendering and before the browser paints the screen
   useLayoutEffect(() => {
     //the expression is empty or contain only numbers
-    if (!expression || /^[0-9.]+$/.test(expression)){
+    if (!expression){
       setAnswer(null);
       return;
     }
