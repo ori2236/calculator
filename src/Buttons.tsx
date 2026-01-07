@@ -5,7 +5,7 @@ import "./Buttons.css";
 export type ButtonsPropsType = {
     setExpression: Dispatch<SetStateAction<string>>;
     inputRef: RefObject<HTMLInputElement | null>;
-    cursorPositionRef: RefObject<number | null>;
+    cursorPositionRef: RefObject<number>;
     expressionLength: number;
     answer: number | null;
     setAnswer: Dispatch<SetStateAction<number | null>>;
@@ -42,7 +42,6 @@ export const Buttons = ({ setExpression, inputRef, cursorPositionRef, expression
 
         if (label === "=") {
             setExpression(String(answer))
-            setAnswer(null)
             return;
         }
 

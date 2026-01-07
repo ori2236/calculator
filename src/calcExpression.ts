@@ -79,7 +79,10 @@ export const validateNumbers = (expression: string): IsValidExpressionType => {
   });
 
   //if the expression is empty or contain only one char can not calculate
-  return { canBeCalc: canBeCalc && validExpression.length > 1, validExpression };
+  return {
+    canBeCalc: canBeCalc && validExpression.length > 1,
+    validExpression,
+  };
 };
 
 export const validateExpression = (
@@ -91,15 +94,15 @@ export const validateExpression = (
     /[0-9.+\-*/()]/.test(char)
   );
 
-  //if the brackets isn't valid return that can't be calculate
-  if (!validBrackets(validCharsExpression))
-    return { canBeCalc: false, validExpression: validCharsExpression };
-
   //validate the numbers and join the digits togther
   const {
     canBeCalc: allNumbersAreValids,
     validExpression: validNumbersExpression,
   } = validateNumbers(validCharsExpression.join(""));
+
+  //if the brackets isn't valid return that can't be calculate
+  if (!validBrackets(validCharsExpression))
+    return { canBeCalc: false, validExpression: validCharsExpression };
 
   const str = validNumbersExpression.join("");
   const invalidChecks = () =>
