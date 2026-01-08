@@ -1,7 +1,10 @@
-function App() {
+import './App.css'
+import { Frame } from './Frame';
+
+const App = () => {
   return (
-    <div>
-      <p>Hello</p>
+    <div className='calculator'>
+      <Frame />
     </div>
   )
 }

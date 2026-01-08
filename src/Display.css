@@ -1,0 +1,21 @@
+.display {
+  width: 90%;
+}
+.expressionLine {
+  font-size: clamp(30px, 5vw, 50px);
+  padding: 15px 0 15px 0;
+  border: 0;
+  outline: none;
+  width: 100%;
+  text-align: right;
+  overflow-x: auto;
+  text-align: right;
+  direction: ltr;
+}
+
+.answerLine {
+  font-size: clamp(20px, 5vw, 30px);
+  display: flex;
+  justify-content: flex-end;
+  height: 30px;
+}

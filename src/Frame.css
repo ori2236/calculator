@@ -1,0 +1,13 @@
+.frame {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: max(25%, 200px);
+  border: 2px solid black;
+  border-radius: 20px;
+}
+
+.buttons {
+    width: 90%;
+}
