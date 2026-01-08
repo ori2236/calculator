@@ -5,7 +5,7 @@ export type DisplayProps = {
     expression: string;
     setExpression: Dispatch<SetStateAction<string>>;
     inputRef: RefObject<HTMLInputElement | null>;
-    cursorPositionRef: RefObject<number>;
+    cursorPositionRef: RefObject<number | null>;
     answer: number | null;
 };
 
@@ -47,7 +47,7 @@ export const Display = ({ expression, setExpression, inputRef, cursorPositionRef
     useLayoutEffect(() => {
         const inputObject = inputRef.current;
         const cursorPosition = cursorPositionRef.current;
-        if (!inputObject) return;
+        if (!inputObject || !cursorPosition) return;
 
         //set the curser to pos (selection between cursorPosition and cursorPosition)
         inputObject.setSelectionRange(cursorPosition, cursorPosition);
