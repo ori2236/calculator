@@ -170,7 +170,3 @@ export const validateExpression = (
     validExpression,
   };
 };
-
-export const calcExpression = (expression: string): number | null => {
-  return null;
-};

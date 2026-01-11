@@ -1,6 +1,6 @@
 import { describe, test, expect } from "vitest";
-import { validateExpression } from "../src/calcExpression";
-import type { IsValidExpressionType } from "../src/calcExpression";
+import { validateExpression } from "../src/services/validateExpression";
+import type { IsValidExpressionType } from "../src/services/validateExpression";
 
 describe("the expression should stay the same", () => {
   test("valid expression without bracket", () => {
@@ -29,7 +29,23 @@ describe("the expression should stay the same", () => {
     const expression = "10+2*(4+1)+((2))";
     const expected: IsValidExpressionType = {
       canBeCalc: true,
-      validExpression: ["10", "+", "2", "*", "(", "4", "+", "1", ")", "+", "(", "(", "2", ")", ")"],
+      validExpression: [
+        "10",
+        "+",
+        "2",
+        "*",
+        "(",
+        "4",
+        "+",
+        "1",
+        ")",
+        "+",
+        "(",
+        "(",
+        "2",
+        ")",
+        ")",
+      ],
     };
 
     const validExpression = validateExpression(expression);
@@ -40,7 +56,23 @@ describe("the expression should stay the same", () => {
     const expression = "2*(3+(4*(5-1)))";
     const expected: IsValidExpressionType = {
       canBeCalc: true,
-      validExpression: ["2", "*", "(", "3", "+", "(", "4", "*", "(", "5", "-", "1", ")", ")", ")"],
+      validExpression: [
+        "2",
+        "*",
+        "(",
+        "3",
+        "+",
+        "(",
+        "4",
+        "*",
+        "(",
+        "5",
+        "-",
+        "1",
+        ")",
+        ")",
+        ")",
+      ],
     };
 
     const validExpression = validateExpression(expression);
@@ -108,7 +140,25 @@ describe("the expression should change in the middle", () => {
     const expression = "2(5+1)8+(4)(3)";
     const expected: IsValidExpressionType = {
       canBeCalc: true,
-      validExpression: ["2", "*", "(", "5", "+", "1", ")", "*", "8", "+", "(", "4", ")", "*","(", "3", ")"],
+      validExpression: [
+        "2",
+        "*",
+        "(",
+        "5",
+        "+",
+        "1",
+        ")",
+        "*",
+        "8",
+        "+",
+        "(",
+        "4",
+        ")",
+        "*",
+        "(",
+        "3",
+        ")",
+      ],
     };
 
     const validExpression = validateExpression(expression);
