@@ -50,7 +50,7 @@ export const Display = ({ expression, inputRef, cursorPositionRef, answer }: Dis
     };
 
     return (
-        <div>
+        <div className="display">
             <input
                 ref={inputRef}
                 value={expression}

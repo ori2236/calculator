@@ -3,7 +3,6 @@ import { FiDelete } from "react-icons/fi";
 import { type ButtonProps, type Label } from "../types";
 import { LiaTimesSolid } from "react-icons/lia";
 import type { JSX } from "react";
-import { validateExpression } from "../services/validateExpression";
 import { calcExpression } from "../services/calcExpression";
 
 const getIconClassIfNeeded: Partial<Record<Label, JSX.Element>> = {
@@ -11,7 +10,7 @@ const getIconClassIfNeeded: Partial<Record<Label, JSX.Element>> = {
     "*": <LiaTimesSolid />,
 };
 
-export const Button = ({ expression, setExpression, inputRef, cursorPositionRef, expressionLength, answer, setAnswer, label }: ButtonProps) => {
+export const Button = ({ expression, setExpression, inputRef, cursorPositionRef, answer, setAnswer, label }: ButtonProps) => {
     const applyInsert = (text: Label, startCurserIndex: number, endCurserIndex: number) => {
         cursorPositionRef.current = startCurserIndex + text.length
         return expression.slice(0, startCurserIndex) + text + expression.slice(endCurserIndex);
@@ -37,16 +36,16 @@ export const Button = ({ expression, setExpression, inputRef, cursorPositionRef,
 
     const handleExpressionChange = (newExpression: string) => {
         if (newExpression) {
-            const { canBeCalc, validExpression } = validateExpression(newExpression);
+            const { validExpression, answer } = calcExpression(newExpression);
             const deltaLengthExpressions =
-                validExpression.join("").length - newExpression.length;
+                validExpression.length - newExpression.length;
 
             if (cursorPositionRef.current !== null) {
                 cursorPositionRef.current += deltaLengthExpressions;
             }
 
-            setExpression(validExpression.join(""));
-            setAnswer(canBeCalc ? calcExpression(validExpression) : null);
+            setExpression(validExpression);
+            setAnswer(answer);
         } else {
             setExpression("");
             setAnswer(null);
@@ -55,8 +54,8 @@ export const Button = ({ expression, setExpression, inputRef, cursorPositionRef,
 
     const handlePress = () => {
         const inputObject = inputRef.current;
-        const startCurserIndex = inputObject?.selectionStart ?? expressionLength - 1;
-        const endCurserIndex = inputObject?.selectionEnd ?? expressionLength - 1;
+        const startCurserIndex = inputObject?.selectionStart ?? expression.length - 1;
+        const endCurserIndex = inputObject?.selectionEnd ?? expression.length - 1;
 
         const specialButtonsFunc = specialButtonsFactory(startCurserIndex, endCurserIndex)[label];
         const nextExpression = specialButtonsFunc ? specialButtonsFunc() : applyInsert(label, startCurserIndex, endCurserIndex);;

@@ -10,6 +10,8 @@ export const labels = [
 
 export type Label = (typeof labels)[number];
 
+export type Operator = "+" | "-" | "*" | "/";
+
 export interface DisplayProps {
   expression: string,
   inputRef: RefObject<HTMLInputElement | null>,
@@ -22,7 +24,6 @@ export interface ButtonsGridProps {
   setExpression: Dispatch<SetStateAction<string>>;
   inputRef: RefObject<HTMLInputElement | null>,
   cursorPositionRef: RefObject<number | null>,
-  expressionLength: number,
   answer: number | null
   setAnswer: Dispatch<SetStateAction<number | null>>;
 }

@@ -1,4 +1,4 @@
-export type IsValidExpressionType = {
+export type ValidExpression = {
   canBeCalc: boolean;
   validExpression: string[];
 };
@@ -21,7 +21,7 @@ export const validBrackets = (expressionArray: string[]): boolean => {
   }
 };
 
-export const validateNumbers = (expression: string): IsValidExpressionType => {
+export const validateNumbers = (expression: string): ValidExpression => {
   /*
   [] : only one char
   + : one or more notes
@@ -87,7 +87,7 @@ export const validateNumbers = (expression: string): IsValidExpressionType => {
 
 export const validateExpression = (
   expression: string
-): IsValidExpressionType => {
+): ValidExpression => {
   const expressionArray = [...expression];
   //remove all the invalid chars
   const validCharsExpression = expressionArray.filter((char) =>
@@ -120,7 +120,7 @@ export const validateExpression = (
   const exceptionPattern = /[*/]/;
   const operatorWithoutMinusPattern = /[+*/]/;
   const numbersAndOpenBracketPattern = /\)|[0-9.]+/;
-  const numbersAndcloseBracketPattern = /\(|[0-9.]+/;
+  const numbersAndCloseBracketPattern = /\(|[0-9.]+/;
 
   const deleteAdjacentOperators = validNumbersExpression.flatMap(
     (char, index, arr) => {
@@ -158,7 +158,7 @@ export const validateExpression = (
       //checking if a multiplication operator needs to be added
       const isMultipicationOperatorNeeded =
         numbersAndOpenBracketPattern.test(previousChar) &&
-        numbersAndcloseBracketPattern.test(char);
+        numbersAndCloseBracketPattern.test(char);
 
       //adding '*' before the char
       return isMultipicationOperatorNeeded ? ["*", char] : [char];
