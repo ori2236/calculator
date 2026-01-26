@@ -1,7 +1,4 @@
-export type ValidExpression = {
-  canBeCalc: boolean;
-  validExpression: string[];
-};
+import type { ValidExpression } from "../types";
 
 export const validBrackets = (expressionArray: string[]): boolean => {
   try {
@@ -22,35 +19,11 @@ export const validBrackets = (expressionArray: string[]): boolean => {
 };
 
 export const validateNumbers = (expression: string): ValidExpression => {
-  /*
-  [] : only one char
-  + : one or more notes
-  0-9 : digits
-  +,/,* : operators
-  \- : since - is for range (like 0-9) we need '\' before the '-'
-  (,) : brackets
-  g : serch for all the matches (g for global)
-
-  if no matches returns null so i added '?? []'
-  */
-
-  //spliting by -, +, *, /, ( ,) and keepng them in an array
-  const splitExpression: string[] =
-    expression.match(/[0-9.]+|[+\-*/()]/g) ?? [];
-
-  //validate the all the numbers
+  const splitExpression: string[] = expression.match(/[0-9.]+|[+\-*/()]/g) ?? [];
   const validExpression = splitExpression.map((char, index, arr) => {
-    /*
-    ^ : from the begginig of the string
-    $ : to the ending of the string
-    */
-    //if not a number continue
     if (!/^[0-9.]+$/.test(char)) return char;
-
-    //if a number start with decimal point add zero fefore
     if (char.startsWith(".")) char = "0" + char;
 
-    //delete all the decimal point except the first one
     const firstDecimalPointIndex = char.indexOf(".");
     if (firstDecimalPointIndex !== -1) {
       const before = char.slice(0, firstDecimalPointIndex + 1);
@@ -68,53 +41,52 @@ export const validateNumbers = (expression: string): ValidExpression => {
       char = char.replace(/\.$/, "");
     }
 
-    //0 one or more and then digits at the begginig of the number before decimal point, the digits is just for checking
     return char.replace(/^0+(?=[0-9])/, "");
   });
 
-  //cheking every item in the array that if he numeric and end with '.' (for example 5.)
-  //if there is one, the function could not be calculate
   const canBeCalc = validExpression.every((char) => {
     return !(/^[0-9.]+$/.test(char) && /\.$/.test(char));
   });
 
-  //if the expression is empty or contain only one char can not calculate
   return {
     canBeCalc: canBeCalc && validExpression.length > 1,
     validExpression,
   };
 };
 
-export const validateExpression = (
-  expression: string
-): ValidExpression => {
+export const validateExpression = (expression: string): ValidExpression => {
   const expressionArray = [...expression];
-  //remove all the invalid chars
   const validCharsExpression = expressionArray.filter((char) =>
-    /[0-9.+\-*/()]/.test(char)
+    /[0-9.+\-*/()]/.test(char),
   );
 
-  //validate the numbers and join the digits togther
-  const {
-    canBeCalc: allNumbersAreValids,
-    validExpression: validNumbersExpression,
-  } = validateNumbers(validCharsExpression.join(""));
+  const { canBeCalc: allNumbersAreValids, validExpression: validNumbersExpression} = validateNumbers(validCharsExpression.join(""));
 
-  //if the brackets isn't valid return that can't be calculate
   if (!validBrackets(validCharsExpression))
     return { canBeCalc: false, validExpression: validCharsExpression };
 
-  const str = validNumbersExpression.join("");
+  const firstNonBadStart = validNumbersExpression.findIndex(
+    (t) => !/[+*/]/.test(t),
+  );
+
+  const validStartAndNumbersExpression = firstNonBadStart === -1
+    ? [] : validNumbersExpression.slice(firstNonBadStart);
+
+  const str = validStartAndNumbersExpression.join("");
   const invalidChecks = () =>
+    //empty expression
+    !validStartAndNumbersExpression.length ||
     //the expression contain invalid number
     !allNumbersAreValids ||
-    //the expression contain brackets after operator
+    //the expression contain closing bracket after operator
     /[+\-*/]\)/.test(str) ||
     //the expression contain empty brackets
-    /\(\)/.test(str);
+    /\(\)/.test(str) ||
+    //the expression contaion only a number
+    /^-?[0-9]+(\.[0-9]+)?$/.test(str);
 
   if (invalidChecks())
-    return { canBeCalc: false, validExpression: validNumbersExpression };
+    return { canBeCalc: false, validExpression: validStartAndNumbersExpression};
 
   const operatorPattern = /[+\-*/]/;
   const exceptionPattern = /[*/]/;
@@ -122,16 +94,15 @@ export const validateExpression = (
   const numbersAndOpenBracketPattern = /\)|[0-9.]+/;
   const numbersAndCloseBracketPattern = /\(|[0-9.]+/;
 
-  const deleteAdjacentOperators = validNumbersExpression.flatMap(
+  const deleteAdjacentOperators = validStartAndNumbersExpression.flatMap(
     (char, index, arr) => {
       if (index === arr.length - 1) return [char];
       const nextChar = arr[index + 1];
-      //any two adjust operators is invalid except where it's /- or *-
       const isTwoAdjustOperator =
         operatorPattern.test(char) && operatorPattern.test(nextChar);
       const isException = exceptionPattern.test(char) && nextChar === "-";
       return isTwoAdjustOperator && !isException ? [] : [char];
-    }
+    },
   );
 
   //the expression ends with operator
@@ -152,21 +123,15 @@ export const validateExpression = (
       const isOpeningBracketAdjustToOperator =
         previousChar === "(" && operatorWithoutMinusPattern.test(char);
 
-      //delete the operator that adjust to the opening bracket if exist
       if (isOpeningBracketAdjustToOperator) return [];
 
-      //checking if a multiplication operator needs to be added
       const isMultipicationOperatorNeeded =
         numbersAndOpenBracketPattern.test(previousChar) &&
         numbersAndCloseBracketPattern.test(char);
 
-      //adding '*' before the char
       return isMultipicationOperatorNeeded ? ["*", char] : [char];
-    }
+    },
   );
 
-  return {
-    canBeCalc: true,
-    validExpression,
-  };
+  return {canBeCalc: true, validExpression};
 };

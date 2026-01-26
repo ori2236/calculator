@@ -1,8 +1,6 @@
 import { describe, test, expect } from "vitest";
-import {
-  calcExpression,
-  CalculateExpression,
-} from "../src/services/calcExpression";
+import { calcExpression } from "../src/services/calcExpression";
+import { CalculateExpression } from "../src/types";
 
 describe("same priority level, should return the same expression and the answer of the expression", () => {
   test("all the operators with priority 1 ('+','-')", () => {
@@ -31,7 +29,7 @@ describe("same priority level, should return the same expression and the answer 
     const expression = "2*3*3/6";
     const expected: CalculateExpression = {
       validExpression: expression,
-      answer: 2,
+      answer: 3,
     };
 
     const finalAnswer = calcExpression(expression);
@@ -39,7 +37,7 @@ describe("same priority level, should return the same expression and the answer 
   });
 
   test("division by 0, shoult return answer as null", () => {
-    const expression = "10/(5-2*3)";
+    const expression = "10/(2*3*0)";
     const expected: CalculateExpression = {
       validExpression: expression,
       answer: null,
@@ -66,7 +64,7 @@ describe("diffrent priorities levels, should return the same expression and the 
     const expression = "5+2*3+6";
     const expected: CalculateExpression = {
       validExpression: expression,
-      answer: 13,
+      answer: 17,
     };
 
     const finalAnswer = calcExpression(expression);

@@ -1,6 +1,6 @@
 import { describe, test, expect } from "vitest";
 import { validateNumbers } from "../src/services/validateExpression";
-import type { ValidExpression } from "../src/services/validateExpression";
+import { ValidExpression } from "../src/types";
 
 describe("should join the digits and decimal points and return valid numbers in the expression", () => {
   test("valid integers numbers, should join all the digits", () => {
