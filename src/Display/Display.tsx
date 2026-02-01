@@ -2,7 +2,7 @@ import "./Display.css"
 import { useLayoutEffect } from "react";
 import { type DisplayProps } from "../types";
 
-export function keepCaretVisible(input: HTMLInputElement, pos: number) {
+export const keepCaretVisible = (input: HTMLInputElement, curserPosition: number) => {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     const style = getComputedStyle(input);
@@ -12,7 +12,7 @@ export function keepCaretVisible(input: HTMLInputElement, pos: number) {
 
     const margin = 18;
 
-    const widthUntilTheCurser = ctx.measureText(input.value.slice(0, pos)).width;
+    const widthUntilTheCurser = ctx.measureText(input.value.slice(0, curserPosition)).width;
 
     const rightEdge = input.scrollLeft + input.clientWidth - margin;
     const leftEdge = input.scrollLeft + margin;
@@ -26,7 +26,9 @@ export function keepCaretVisible(input: HTMLInputElement, pos: number) {
     }
 }
 
-export const Display = ({ expression, inputRef, cursorPositionRef, answer }: DisplayProps) => {
+export const Display = (props: DisplayProps) => {
+    const { expression, inputRef, cursorPositionRef, answer } = props;
+
     useLayoutEffect(() => {
         const inputObject = inputRef.current;
         const cursorPosition = cursorPositionRef.current;
