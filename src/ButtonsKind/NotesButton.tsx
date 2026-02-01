@@ -1,15 +1,6 @@
 
-import type { Dispatch, SetStateAction, RefObject } from "react";
-import type { Note } from "../types";
-import { ButtonUI } from "../Button/ButtonUI";
-
-export interface NotesButtonProps {
-    handleExpressionChange: (onClick: () => string) => void;
-    note: Note
-    expression: string,
-    inputRef: RefObject<HTMLInputElement | null>,
-    cursorPositionRef: RefObject<number | null>;
-}
+import { ButtonUI } from "../Button/ButtonUI"
+import type { NotesButtonProps } from "../Types/ClassTypes";
 
 export const NotesButton = (props: NotesButtonProps) => {
     const { handleExpressionChange, note, expression, inputRef, cursorPositionRef } = props;

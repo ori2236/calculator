@@ -1,4 +1,4 @@
-import type { ValidExpression } from "../types";
+import type { ValidExpression } from "../Types/LabelTypes";
 
 export const validBrackets = (expressionArray: string[]): boolean => {
   try {
@@ -19,7 +19,8 @@ export const validBrackets = (expressionArray: string[]): boolean => {
 };
 
 export const validateNumbers = (expression: string): ValidExpression => {
-  const splitExpression: string[] = expression.match(/[0-9.]+|[+\-*/()]/g) ?? [];
+  const splitExpression: string[] =
+    expression.match(/[0-9.]+|[+\-*/()]/g) ?? [];
   const validExpression = splitExpression.map((char, index, arr) => {
     if (!/^[0-9.]+$/.test(char)) return char;
     if (char.startsWith(".")) char = "0" + char;
@@ -60,7 +61,10 @@ export const validateExpression = (expression: string): ValidExpression => {
     /[0-9.+\-*/()]/.test(char),
   );
 
-  const { canBeCalc: allNumbersAreValids, validExpression: validNumbersExpression} = validateNumbers(validCharsExpression.join(""));
+  const {
+    canBeCalc: allNumbersAreValids,
+    validExpression: validNumbersExpression,
+  } = validateNumbers(validCharsExpression.join(""));
 
   if (!validBrackets(validCharsExpression))
     return { canBeCalc: false, validExpression: validCharsExpression };
@@ -69,8 +73,10 @@ export const validateExpression = (expression: string): ValidExpression => {
     (t) => !/[+*/]/.test(t),
   );
 
-  const validStartAndNumbersExpression = firstNonBadStart === -1
-    ? [] : validNumbersExpression.slice(firstNonBadStart);
+  const validStartAndNumbersExpression =
+    firstNonBadStart === -1
+      ? []
+      : validNumbersExpression.slice(firstNonBadStart);
 
   const str = validStartAndNumbersExpression.join("");
   const invalidChecks = () =>
@@ -86,7 +92,10 @@ export const validateExpression = (expression: string): ValidExpression => {
     /^-?[0-9]+(\.[0-9]+)?$/.test(str);
 
   if (invalidChecks())
-    return { canBeCalc: false, validExpression: validStartAndNumbersExpression};
+    return {
+      canBeCalc: false,
+      validExpression: validStartAndNumbersExpression,
+    };
 
   const operatorPattern = /[+\-*/]/;
   const exceptionPattern = /[*/]/;
@@ -133,5 +142,5 @@ export const validateExpression = (expression: string): ValidExpression => {
     },
   );
 
-  return {canBeCalc: true, validExpression};
+  return { canBeCalc: true, validExpression };
 };

@@ -1,12 +1,5 @@
-import type { Dispatch, SetStateAction, RefObject } from "react";
 import { ButtonUI } from "../Button/ButtonUI";
-
-export interface deleteButtonProps {
-    handleExpressionChange: (onClick: ()=>string) => void;
-    expression: string;
-    inputRef: RefObject<HTMLInputElement | null>;
-    cursorPositionRef: RefObject<number | null>;
-}
+import type { deleteButtonProps } from "../Types/ClassTypes";
 
 export const DeleteButton = (props: deleteButtonProps) => {
     const { handleExpressionChange, expression, inputRef, cursorPositionRef } = props;

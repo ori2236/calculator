@@ -1,10 +1,11 @@
 import "./ButtonsGrid.css";
-import { gridLabels, specialNotes, type ButtonsGridProps, type Label, type Note } from "../types";
+import { gridLabels, specialNotes, type Label, type Note } from "../Types/LabelTypes";
 import { calcExpression } from "../services/calcExpression";
 import { DeleteAllButton } from "../ButtonsKind/DeleteAllButton";
 import { DeleteButton } from "../ButtonsKind/DeleteButton";
 import { EqualButton } from "../ButtonsKind/EqualButton";
 import { NotesButton } from "../ButtonsKind/NotesButton";
+import type { ButtonsGridProps } from "../Types/ClassTypes";
 
 export const ButtonsGrid = (props: ButtonsGridProps) => {
     const { expression, setExpression, inputRef, cursorPositionRef, answer, setAnswer } = props;

@@ -6,7 +6,7 @@ import type {
   OperatorAndPriority,
   PrecedenceAndArrays,
   StopSignalAndArrays,
-} from "../types";
+} from "../Types/LabelTypes";
 import { validateExpression } from "./validateExpression";
 
 const isNumberLabel = (char: string): char is Label => {
@@ -31,7 +31,10 @@ const getExtraPriorityIfNeeded = (arr: string[], currentIndex: number) => {
   return /[/*]/.test(arr[currentIndex - 1]) ? 1.5 : 0;
 };
 
-const applyOperatorFactory = (firstNum: number, secondNum: number): Record<Operator, number> => ({
+const applyOperatorFactory = (
+  firstNum: number,
+  secondNum: number,
+): Record<Operator, number> => ({
   "+": firstNum + secondNum,
   "-": firstNum - secondNum,
   "*": firstNum * secondNum,
@@ -45,7 +48,8 @@ const applyTopOperator = (
   const lastOperator = operatorsArray[operatorsArray.length - 1];
   const numbersArrayLength = numbersArray.length;
 
-  const isUnaryMinus = lastOperator.operator === "-" && lastOperator.priority % 1 !== 0;
+  const isUnaryMinus =
+    lastOperator.operator === "-" && lastOperator.priority % 1 !== 0;
 
   const secondNum = numbersArray[numbersArrayLength - 1];
   if (lastOperator.operator === "/" && secondNum === 0)
@@ -66,8 +70,13 @@ const applyTopOperator = (
   return { operatorsArray: newOperatorsArray, numbersArray: newNumbersArray };
 };
 
-const calcIfNeeded = (operatorsArray: OperatorAndPriority[], numbersArray: number[], currentPriority: number): Arrays => {
-  const calcedArrays = operatorsArray.reduceRight<StopSignalAndArrays>(({ operatorsArray, numbersArray, stopped }) => {
+const calcIfNeeded = (
+  operatorsArray: OperatorAndPriority[],
+  numbersArray: number[],
+  currentPriority: number,
+): Arrays => {
+  const calcedArrays = operatorsArray.reduceRight<StopSignalAndArrays>(
+    ({ operatorsArray, numbersArray, stopped }) => {
       if (stopped || operatorsArray.length === 0)
         return { operatorsArray, numbersArray, stopped };
 
@@ -89,9 +98,10 @@ const calcIfNeeded = (operatorsArray: OperatorAndPriority[], numbersArray: numbe
 };
 
 export const calcExpression = (expression: string): CalculateExpression => {
-  const { canBeCalc, validExpression: validExpressionArray } = validateExpression(expression);
+  const { canBeCalc, validExpression: validExpressionArray } =
+    validateExpression(expression);
   const validExpression = validExpressionArray.join("");
-  if (!canBeCalc) return {validExpression: validExpression, answer: null};
+  if (!canBeCalc) return { validExpression: validExpression, answer: null };
 
   try {
     const calcedExpression = validExpressionArray.reduce<PrecedenceAndArrays>(
@@ -111,11 +121,21 @@ export const calcExpression = (expression: string): CalculateExpression => {
         }
 
         if (isOperatorLabel(char)) {
-          const priority = base + operatorsPriorities[char] + getExtraPriorityIfNeeded(arr, index);
-          const calcedArrays = calcIfNeeded(operatorsArray,numbersArray,priority);
+          const priority =
+            base +
+            operatorsPriorities[char] +
+            getExtraPriorityIfNeeded(arr, index);
+          const calcedArrays = calcIfNeeded(
+            operatorsArray,
+            numbersArray,
+            priority,
+          );
 
           return {
-            operatorsArray: [...calcedArrays.operatorsArray, { operator: char, priority }],
+            operatorsArray: [
+              ...calcedArrays.operatorsArray,
+              { operator: char, priority },
+            ],
             numbersArray: calcedArrays.numbersArray,
             base,
           };
@@ -126,11 +146,15 @@ export const calcExpression = (expression: string): CalculateExpression => {
       { operatorsArray: [], numbersArray: [], base: 0 },
     );
 
-    const finalCalc = calcIfNeeded(calcedExpression.operatorsArray, calcedExpression.numbersArray, 0);
+    const finalCalc = calcIfNeeded(
+      calcedExpression.operatorsArray,
+      calcedExpression.numbersArray,
+      0,
+    );
     const answer = finalCalc.numbersArray[0];
 
-    return {validExpression: validExpression, answer};
+    return { validExpression: validExpression, answer };
   } catch {
-    return {validExpression: validExpression, answer: null};
+    return { validExpression: validExpression, answer: null };
   }
 };

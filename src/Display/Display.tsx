@@ -1,6 +1,6 @@
 import "./Display.css"
+import type { DisplayProps } from "../Types/ClassTypes";
 import { useLayoutEffect } from "react";
-import { type DisplayProps } from "../types";
 
 export const keepCaretVisible = (input: HTMLInputElement, curserPosition: number) => {
     const canvas = document.createElement("canvas");

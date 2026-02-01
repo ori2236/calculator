@@ -1,8 +1,5 @@
 import { ButtonUI } from "../Button/ButtonUI";
-
-export interface deleteAllButtonProps {
-    handleExpressionChange: (onClick: () => string) => void;
-}
+import type { deleteAllButtonProps } from "../Types/ClassTypes";
 
 export const DeleteAllButton = (props: deleteAllButtonProps) => {
     const { handleExpressionChange } = props;

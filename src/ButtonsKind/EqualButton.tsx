@@ -1,9 +1,5 @@
 import { ButtonUI } from "../Button/ButtonUI";
-
-export interface EqualButtonProps {
-    handleExpressionChange: (onClick: () => string) => void;
-    answer: Number | null;
-}
+import type { EqualButtonProps } from "../Types/ClassTypes";
 
 export const EqualButton = (props: EqualButtonProps) => {
     const { handleExpressionChange, answer } = props;
