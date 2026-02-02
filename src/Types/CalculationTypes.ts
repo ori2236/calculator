@@ -1,10 +1,10 @@
 import type { Operator } from "./LabelTypes";
 
-export type OperatorAndPriority = { operator: Operator; priority: number };
+export type OperatorObject = { operatorNote: Operator; priority: number };
 
 export type ValidExpression = {
-  canBeCalc: boolean;
-  validExpression: string[];
+  canBeCalculate: boolean;
+  validExpressionAsArray: string[];
 };
 
 export interface CalculateExpression {
@@ -12,19 +12,19 @@ export interface CalculateExpression {
   answer: number | null;
 }
 
-export interface Arrays {
-  operatorsArray: OperatorAndPriority[];
-  numbersArray: number[];
+export interface Stacks {
+  operatorsStack: OperatorObject[];
+  numbersStack: number[];
 }
 
-export interface PrecedenceAndArrays {
-  operatorsArray: OperatorAndPriority[];
-  numbersArray: number[];
-  base: number;
+export interface StacksState {
+  operatorsStack: OperatorObject[];
+  numbersStack: number[];
+  depthBonus: number;
 }
 
-export interface StopSignalAndArrays {
-  operatorsArray: OperatorAndPriority[];
-  numbersArray: number[];
+export interface StopState {
+  operatorsStack: OperatorObject[];
+  numbersStack: number[];
   stopped: boolean;
 }

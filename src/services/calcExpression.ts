@@ -1,23 +1,18 @@
 import type {
-  Arrays,
+  OperatorObject,
+  Stacks,
+  StopState,
   CalculateExpression,
-  Label,
-  Operator,
-  OperatorAndPriority,
-  PrecedenceAndArrays,
-  StopSignalAndArrays,
+  StacksState,
+} from "../Types/CalculationTypes";
+import {
+  isBracketsLabel,
+  isDigitLabel,
+  isOperatorLabel,
+  type Bracket,
+  type Operator,
 } from "../Types/LabelTypes";
 import { validateExpression } from "./validateExpression";
-
-const isNumberLabel = (char: string): char is Label => {
-  const numbersPattern = /[0-9.]+/;
-  return numbersPattern.test(char);
-};
-
-const isOperatorLabel = (char: string): char is Operator => {
-  const operatorPattern = /[+\-*/]/;
-  return operatorPattern.test(char);
-};
 
 const operatorsPriorities: Record<Operator, number> = {
   "+": 1,
@@ -26,7 +21,7 @@ const operatorsPriorities: Record<Operator, number> = {
   "/": 2,
 };
 
-const getExtraPriorityIfNeeded = (arr: string[], currentIndex: number) => {
+const getExtraPriority = (arr: string[], currentIndex: number) => {
   if (currentIndex === 0) return 1.5;
   return /[/*]/.test(arr[currentIndex - 1]) ? 1.5 : 0;
 };
@@ -42,119 +37,131 @@ const applyOperatorFactory = (
 });
 
 const applyTopOperator = (
-  operatorsArray: OperatorAndPriority[],
-  numbersArray: number[],
+  operatorsStack: OperatorObject[],
+  numbersStack: number[],
 ) => {
-  const lastOperator = operatorsArray[operatorsArray.length - 1];
-  const numbersArrayLength = numbersArray.length;
+  const lastOperator = operatorsStack[operatorsStack.length - 1];
+  const numbersStackLength = numbersStack.length;
 
   const isUnaryMinus =
-    lastOperator.operator === "-" && lastOperator.priority % 1 !== 0;
+    lastOperator.operatorNote === "-" && lastOperator.priority % 1 !== 0;
 
-  const secondNum = numbersArray[numbersArrayLength - 1];
-  if (lastOperator.operator === "/" && secondNum === 0)
+  const secondNum = numbersStack[numbersStackLength - 1];
+  if (lastOperator.operatorNote === "/" && secondNum === 0)
     throw new Error("division by 0");
 
-  const firstNum = isUnaryMinus ? 0 : numbersArray[numbersArrayLength - 2];
+  const firstNum = isUnaryMinus ? 0 : numbersStack[numbersStackLength - 2];
 
   const result = applyOperatorFactory(firstNum, secondNum)[
-    lastOperator.operator
+    lastOperator.operatorNote
   ];
 
-  const newNumbersArray = [
-    ...numbersArray.slice(0, isUnaryMinus ? -1 : -2),
+  const newnumbersStack = [
+    ...numbersStack.slice(0, isUnaryMinus ? -1 : -2),
     result,
   ];
-  const newOperatorsArray = operatorsArray.slice(0, -1);
+  const newoperatorsStack = operatorsStack.slice(0, -1);
 
-  return { operatorsArray: newOperatorsArray, numbersArray: newNumbersArray };
+  return { operatorsStack: newoperatorsStack, numbersStack: newnumbersStack };
 };
 
-const calcIfNeeded = (
-  operatorsArray: OperatorAndPriority[],
-  numbersArray: number[],
+const calculateOperators = (
+  operatorsStack: OperatorObject[],
+  numbersStack: number[],
   currentPriority: number,
-): Arrays => {
-  const calcedArrays = operatorsArray.reduceRight<StopSignalAndArrays>(
-    ({ operatorsArray, numbersArray, stopped }) => {
-      if (stopped || operatorsArray.length === 0)
-        return { operatorsArray, numbersArray, stopped };
+): Stacks => {
+  const calcedArrays = operatorsStack.reduceRight<StopState>(
+    (state) => {
+      if (state.stopped || state.operatorsStack.length === 0) return state;
 
-      const topOperator = operatorsArray[operatorsArray.length - 1];
+      const topOperator = state.operatorsStack[state.operatorsStack.length - 1];
 
-      if (currentPriority > topOperator.priority)
-        return { operatorsArray, numbersArray, stopped: true };
-
-      const arrays = applyTopOperator(operatorsArray, numbersArray);
+      if (currentPriority > topOperator.priority) {
+        return { ...state, stopped: true };
+      }
+      
+      const arrays = applyTopOperator(state.operatorsStack, state.numbersStack);
       return { ...arrays, stopped: false };
     },
-    { operatorsArray, numbersArray, stopped: false },
+    { operatorsStack, numbersStack, stopped: false },
   );
 
   return {
-    operatorsArray: calcedArrays.operatorsArray,
-    numbersArray: calcedArrays.numbersArray,
+    operatorsStack: calcedArrays.operatorsStack,
+    numbersStack: calcedArrays.numbersStack,
   };
 };
 
+const bracketCase: Record<Bracket, (s: StacksState) => StacksState> = {
+  "(": (s) => ({
+    operatorsStack: s.operatorsStack,
+    numbersStack: s.numbersStack,
+    depthBonus: s.depthBonus + 2,
+  }),
+  ")": (s) => ({
+    operatorsStack: s.operatorsStack,
+    numbersStack: s.numbersStack,
+    depthBonus: s.depthBonus - 2,
+  }),
+};
+
+const calculateResult = (validExpressionArray: string[]) => {
+  return validExpressionArray.reduce<StacksState>(
+    (state, note, index, arr) => {
+      if (isBracketsLabel(note)) return bracketCase[note](state);
+
+      if (isDigitLabel(note)) {
+        return {
+          ...state,
+          numbersStack: [...state.numbersStack, Number(note)],
+        };
+      }
+
+      if (isOperatorLabel(note)) {
+        const priority =
+          state.depthBonus +
+          operatorsPriorities[note] +
+          getExtraPriority(arr, index);
+
+        const newStacks = calculateOperators(
+          state.operatorsStack,
+          state.numbersStack,
+          priority,
+        );
+
+        return {
+          ...state,
+          operatorsStack: [
+            ...newStacks.operatorsStack,
+            { operatorNote: note, priority },
+          ],
+          numbersStack: newStacks.numbersStack,
+        };
+      }
+
+      return state;
+    },
+    { operatorsStack: [], numbersStack: [], depthBonus: 0 },
+  );
+};
+
 export const calcExpression = (expression: string): CalculateExpression => {
-  const { canBeCalc, validExpression: validExpressionArray } =
+  const { canBeCalculate, validExpressionAsArray: validExpressionArray } =
     validateExpression(expression);
   const validExpression = validExpressionArray.join("");
-  if (!canBeCalc) return { validExpression: validExpression, answer: null };
+  if (!canBeCalculate) return { validExpression, answer: null };
 
   try {
-    const calcedExpression = validExpressionArray.reduce<PrecedenceAndArrays>(
-      ({ operatorsArray, numbersArray, base }, char, index, arr) => {
-        if (char === "(")
-          return { operatorsArray, numbersArray, base: base + 2 };
-
-        if (char === ")")
-          return { operatorsArray, numbersArray, base: base - 2 };
-
-        if (isNumberLabel(char)) {
-          return {
-            operatorsArray,
-            numbersArray: [...numbersArray, Number(char)],
-            base,
-          };
-        }
-
-        if (isOperatorLabel(char)) {
-          const priority =
-            base +
-            operatorsPriorities[char] +
-            getExtraPriorityIfNeeded(arr, index);
-          const calcedArrays = calcIfNeeded(
-            operatorsArray,
-            numbersArray,
-            priority,
-          );
-
-          return {
-            operatorsArray: [
-              ...calcedArrays.operatorsArray,
-              { operator: char, priority },
-            ],
-            numbersArray: calcedArrays.numbersArray,
-            base,
-          };
-        }
-
-        return { operatorsArray, numbersArray, base };
-      },
-      { operatorsArray: [], numbersArray: [], base: 0 },
-    );
-
-    const finalCalc = calcIfNeeded(
-      calcedExpression.operatorsArray,
-      calcedExpression.numbersArray,
+    const calcedExpression = calculateResult(validExpressionArray);
+    const finalCalc = calculateOperators(
+      calcedExpression.operatorsStack,
+      calcedExpression.numbersStack,
       0,
     );
-    const answer = finalCalc.numbersArray[0];
+    const answer = finalCalc.numbersStack[0];
 
-    return { validExpression: validExpression, answer };
+    return { validExpression, answer };
   } catch {
-    return { validExpression: validExpression, answer: null };
+    return { validExpression, answer: null };
   }
 };

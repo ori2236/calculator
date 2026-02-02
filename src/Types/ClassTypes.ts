@@ -8,42 +8,25 @@ export interface ButtonUIProps {
 
 export type ButtonCover = JSX.Element | Exclude<Label, IconLabel>;
 
-export interface ButtonsGridProps {
-    expression: string,
-    setExpression: Dispatch<SetStateAction<string>>;
-    inputRef: RefObject<HTMLInputElement | null>,
-    cursorPositionRef: RefObject<number | null>,
-    answer: number | null
-    setAnswer: Dispatch<SetStateAction<number | null>>;
-}
-
-export interface deleteAllButtonProps {
+interface ButtonKind {
   handleExpressionChange: (onClick: () => string) => void;
 }
 
-export interface deleteButtonProps {
-  handleExpressionChange: (onClick: () => string) => void;
+export interface deleteAllButtonProps extends ButtonKind{}
+
+export interface deleteButtonProps extends ButtonKind{
   expression: string;
   inputRef: RefObject<HTMLInputElement | null>;
   cursorPositionRef: RefObject<number | null>;
 }
 
-export interface EqualButtonProps {
-    handleExpressionChange: (onClick: () => string) => void;
-    answer: Number | null;
+export interface EqualButtonProps extends ButtonKind {
+  answer: Number | null;
 }
 
-export interface NotesButtonProps {
-  handleExpressionChange: (onClick: () => string) => void;
+export interface NotesButtonProps extends ButtonKind {
   note: Note;
   expression: string;
   inputRef: RefObject<HTMLInputElement | null>;
   cursorPositionRef: RefObject<number | null>;
-}
-
-export interface DisplayProps {
-  expression: string,
-  inputRef: RefObject<HTMLInputElement | null>,
-  cursorPositionRef: RefObject<number | null>,
-  answer: number | null
 }

@@ -1,6 +1,5 @@
 import "./Display.css"
-import type { DisplayProps } from "../Types/ClassTypes";
-import { useLayoutEffect } from "react";
+import { useLayoutEffect, type RefObject } from "react";
 
 export const keepCaretVisible = (input: HTMLInputElement, curserPosition: number) => {
     const canvas = document.createElement("canvas");
@@ -24,6 +23,13 @@ export const keepCaretVisible = (input: HTMLInputElement, curserPosition: number
     if (widthUntilTheCurser < leftEdge) {
         input.scrollLeft -= leftEdge - widthUntilTheCurser;
     }
+}
+
+export interface DisplayProps {
+    expression: string,
+    inputRef: RefObject<HTMLInputElement | null>,
+    cursorPositionRef: RefObject<number | null>,
+    answer: number | null
 }
 
 export const Display = (props: DisplayProps) => {

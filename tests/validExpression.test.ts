@@ -1,13 +1,13 @@
 import { describe, test, expect } from "vitest";
 import { validateExpression } from "../src/services/validateExpression";
-import type { ValidExpression } from "../src/services/validateExpression";
+import type { ValidExpression } from "../src/Types/CalculationTypes";
 
 describe("the expression should stay the same", () => {
   test("valid expression without bracket", () => {
     const expression = "10+2*5+2";
     const expected: ValidExpression = {
-      canBeCalc: true,
-      validExpression: ["10", "+", "2", "*", "5", "+", "2"],
+      canBeCalculate: true,
+      validExpressionAsArray: ["10", "+", "2", "*", "5", "+", "2"],
     };
 
     const validExpression = validateExpression(expression);
@@ -17,8 +17,20 @@ describe("the expression should stay the same", () => {
   test("valid expression with simple brackets", () => {
     const expression = "10+2*(4+1)+2";
     const expected: ValidExpression = {
-      canBeCalc: true,
-      validExpression: ["10", "+", "2", "*", "(", "4", "+", "1", ")", "+", "2"],
+      canBeCalculate: true,
+      validExpressionAsArray: [
+        "10",
+        "+",
+        "2",
+        "*",
+        "(",
+        "4",
+        "+",
+        "1",
+        ")",
+        "+",
+        "2",
+      ],
     };
 
     const validExpression = validateExpression(expression);
@@ -28,8 +40,8 @@ describe("the expression should stay the same", () => {
   test("valid expression with unnecessary brackets", () => {
     const expression = "10+2*(4+1)+((2))";
     const expected: ValidExpression = {
-      canBeCalc: true,
-      validExpression: [
+      canBeCalculate: true,
+      validExpressionAsArray: [
         "10",
         "+",
         "2",
@@ -55,8 +67,8 @@ describe("the expression should stay the same", () => {
   test("valid expression with nested brackets", () => {
     const expression = "2*(3+(4*(5-1)))";
     const expected: ValidExpression = {
-      canBeCalc: true,
-      validExpression: [
+      canBeCalculate: true,
+      validExpressionAsArray: [
         "2",
         "*",
         "(",
@@ -82,8 +94,19 @@ describe("the expression should stay the same", () => {
   test("closing bracket after operator, should return that cannot be calculated", () => {
     const expression = "1+(5+(2+))";
     const expected: ValidExpression = {
-      canBeCalc: false,
-      validExpression: ["1", "+", "(", "5", "+", "(", "2", "+", ")", ")"],
+      canBeCalculate: false,
+      validExpressionAsArray: [
+        "1",
+        "+",
+        "(",
+        "5",
+        "+",
+        "(",
+        "2",
+        "+",
+        ")",
+        ")",
+      ],
     };
 
     const validExpression = validateExpression(expression);
@@ -93,8 +116,8 @@ describe("the expression should stay the same", () => {
   test("empty brackets should be invalid, should return that cannot be calculated", () => {
     const expression = "1+()+2";
     const expected: ValidExpression = {
-      canBeCalc: false,
-      validExpression: ["1", "+", "(", ")", "+", "2"],
+      canBeCalculate: false,
+      validExpressionAsArray: ["1", "+", "(", ")", "+", "2"],
     };
 
     const validExpression = validateExpression(expression);
@@ -104,8 +127,8 @@ describe("the expression should stay the same", () => {
   test("the expression end with operator or opening brackets, should return that cannot be calculated", () => {
     const expression = "95+5+10-4-";
     const expected: ValidExpression = {
-      canBeCalc: false,
-      validExpression: ["95", "+", "5", "+", "10", "-", "4", "-"],
+      canBeCalculate: false,
+      validExpressionAsArray: ["95", "+", "5", "+", "10", "-", "4", "-"],
     };
 
     const validExpression = validateExpression(expression);
@@ -117,8 +140,8 @@ describe("the expression should change in the middle", () => {
   test("a few adjacent operators, should leave the last operator (except '/-' and '*-')", () => {
     const expression = "95*/+5/+10+-4*/8";
     const expected: ValidExpression = {
-      canBeCalc: true,
-      validExpression: ["95", "+", "5", "+", "10", "-", "4", "/", "8"],
+      canBeCalculate: true,
+      validExpressionAsArray: ["95", "+", "5", "+", "10", "-", "4", "/", "8"],
     };
 
     const validExpression = validateExpression(expression);
@@ -128,8 +151,20 @@ describe("the expression should change in the middle", () => {
   test("a opening bracket is adjacent to operator (except '-'), should delete the operator", () => {
     const expression = "2+(5+1)+(+2)";
     const expected: ValidExpression = {
-      canBeCalc: true,
-      validExpression: ["2", "+", "(", "5", "+", "1", ")", "+", "(", "2", ")"],
+      canBeCalculate: true,
+      validExpressionAsArray: [
+        "2",
+        "+",
+        "(",
+        "5",
+        "+",
+        "1",
+        ")",
+        "+",
+        "(",
+        "2",
+        ")",
+      ],
     };
 
     const validExpression = validateExpression(expression);
@@ -139,8 +174,8 @@ describe("the expression should change in the middle", () => {
   test("a bracket or a number is adjacent to a bracket, should add '*' between them", () => {
     const expression = "2(5+1)8+(4)(3)";
     const expected: ValidExpression = {
-      canBeCalc: true,
-      validExpression: [
+      canBeCalculate: true,
+      validExpressionAsArray: [
         "2",
         "*",
         "(",
@@ -168,8 +203,8 @@ describe("the expression should change in the middle", () => {
   test("invalid characters in the expression", () => {
     const expression = "10a+2*5+!2";
     const expected: ValidExpression = {
-      canBeCalc: true,
-      validExpression: ["10", "+", "2", "*", "5", "+", "2"],
+      canBeCalculate: true,
+      validExpressionAsArray: ["10", "+", "2", "*", "5", "+", "2"],
     };
 
     const validExpression = validateExpression(expression);

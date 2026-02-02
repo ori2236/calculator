@@ -1,18 +1,24 @@
 import "./ButtonsGrid.css";
-import { gridLabels, specialNotes, type Label, type Note } from "../Types/LabelTypes";
+import { gridLabels, isNoteLabel, isSpecialNoteLabel, type Label, type SpecialNotes } from "../Types/LabelTypes";
 import { calcExpression } from "../services/calcExpression";
 import { DeleteAllButton } from "../ButtonsKind/DeleteAllButton";
 import { DeleteButton } from "../ButtonsKind/DeleteButton";
 import { EqualButton } from "../ButtonsKind/EqualButton";
 import { NotesButton } from "../ButtonsKind/NotesButton";
-import type { ButtonsGridProps } from "../Types/ClassTypes";
+import type { Dispatch, SetStateAction, RefObject, JSX } from "react";
+
+export interface ButtonsGridProps {
+    expression: string,
+    setExpression: Dispatch<SetStateAction<string>>;
+    inputRef: RefObject<HTMLInputElement | null>,
+    cursorPositionRef: RefObject<number | null>,
+    answer: number | null
+    setAnswer: Dispatch<SetStateAction<number | null>>;
+}
 
 export const ButtonsGrid = (props: ButtonsGridProps) => {
     const { expression, setExpression, inputRef, cursorPositionRef, answer, setAnswer } = props;
-
-    const isNote = (label: Label): label is Note =>
-        !specialNotes.some((s) => s === label);
-
+    
     const handleExpressionChange = (actionFunction: () => string) => {
         const newExpression = actionFunction();
 
@@ -32,43 +38,52 @@ export const ButtonsGrid = (props: ButtonsGridProps) => {
             setAnswer(null);
         }
     };
+    
+    const specialNotesButtons: Record<SpecialNotes, (label: SpecialNotes) => JSX.Element> = {
+        AC: (label) => (
+            <DeleteAllButton
+                key={label}
+                handleExpressionChange={handleExpressionChange}
+            />
+        ),
+        delete: (label) => (
+            <DeleteButton
+                key={label}
+                handleExpressionChange={handleExpressionChange}
+                expression={expression}
+                inputRef={inputRef}
+                cursorPositionRef={cursorPositionRef}
+            />
+        ),
+        "=": (label) => (
+            <EqualButton
+                key={label}
+                handleExpressionChange={handleExpressionChange}
+                answer={answer}
+            />
+        ),
+    };
 
-    return (
-        <div className="grid-container">
-            {gridLabels.map((label) => {
-                if (label === "AC")
-                    return <DeleteAllButton
-                        key={label}
-                        handleExpressionChange={handleExpressionChange}
-                    />;
+    const buttons = (label: Label) => {
+        if (isSpecialNoteLabel(label)) {
+            return specialNotesButtons[label](label);
+        }
 
-                if (label === "delete")
-                    return <DeleteButton
-                        key={label}
-                        handleExpressionChange={handleExpressionChange}
-                        expression={expression}
-                        inputRef={inputRef}
-                        cursorPositionRef={cursorPositionRef}
-                    />;
+        if (isNoteLabel(label)) {
+            return (
+                <NotesButton
+                    key={label}
+                    note={label}
+                    handleExpressionChange={handleExpressionChange}
+                    expression={expression}
+                    inputRef={inputRef}
+                    cursorPositionRef={cursorPositionRef}
+                />
+            );
+        }
 
-                if (label === "=")
-                    return <EqualButton
-                        key={label}
-                        handleExpressionChange={handleExpressionChange}
-                        answer={answer}
-                    />;
+        return null;
+    };
 
-                if (isNote(label))
-                    return <NotesButton
-                        key={label}
-                        note={label}
-                        handleExpressionChange={handleExpressionChange}
-                        expression={expression}
-                        inputRef={inputRef}
-                        cursorPositionRef={cursorPositionRef}
-                    />;
-                return null;
-            })}
-        </div>
-    );
+    return <div className="grid-container">{gridLabels.map(buttons)}</div>;
 }

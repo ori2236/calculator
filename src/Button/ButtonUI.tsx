@@ -5,16 +5,16 @@ import { LiaTimesSolid } from "react-icons/lia";
 import type { JSX } from "react";
 import type { ButtonCover, ButtonUIProps } from "../Types/ClassTypes";
 
-const iconClass: Record<IconLabel, JSX.Element> = {
+const icon: Record<IconLabel, JSX.Element> = {
     "delete": <FiDelete />,
     "*": <LiaTimesSolid />,
 };
 
 const isIconLabel = (label: Label): label is IconLabel =>
-    label in iconClass;
+    label in icon;
 
 const getButtonCover = (label: Label): ButtonCover =>
-    isIconLabel(label) ? iconClass[label] : label;
+    isIconLabel(label) ? icon[label] : label;
 
 export const ButtonUI = ({ label, onPress }: ButtonUIProps) => {
     const handleMovedFocus = (e: React.MouseEvent<HTMLButtonElement>) =>

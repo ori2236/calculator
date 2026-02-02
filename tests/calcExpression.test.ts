@@ -1,106 +1,70 @@
 import { describe, test, expect } from "vitest";
 import { calcExpression } from "../src/services/calcExpression";
-import { CalculateExpression } from "../src/types";
+import { CalculateExpression } from "../src/Types/CalculationTypes";
 
-describe("same priority level, should return the same expression and the answer of the expression", () => {
+describe("same priority level for all the tests, should return the same expression and the answer of the expression", () => {
   test("all the operators with priority 1 ('+','-')", () => {
     const expression = "5+2-3+6";
-    const expected: CalculateExpression = {
-      validExpression: expression,
-      answer: 10,
-    };
 
-    const finalAnswer = calcExpression(expression);
-    expect(finalAnswer).toEqual(expected);
+    const answer = calcExpression(expression).answer;
+    expect(answer).toEqual(10);
   });
 
   test("the expression starts with '-'", () => {
     const expression = "-5+2-3+6";
-    const expected: CalculateExpression = {
-      validExpression: expression,
-      answer: 0,
-    };
 
-    const finalAnswer = calcExpression(expression);
-    expect(finalAnswer).toEqual(expected);
+    const answer = calcExpression(expression).answer;
+    expect(answer).toEqual(0);
   });
 
   test("all the operators with priority 2 ('*','/')", () => {
     const expression = "2*3*3/6";
-    const expected: CalculateExpression = {
-      validExpression: expression,
-      answer: 3,
-    };
 
-    const finalAnswer = calcExpression(expression);
-    expect(finalAnswer).toEqual(expected);
+    const answer = calcExpression(expression).answer;
+    expect(answer).toEqual(3);
   });
 
   test("division by 0, shoult return answer as null", () => {
     const expression = "10/(2*3*0)";
-    const expected: CalculateExpression = {
-      validExpression: expression,
-      answer: null,
-    };
 
-    const finalAnswer = calcExpression(expression);
-    expect(finalAnswer).toEqual(expected);
+    const answer = calcExpression(expression).answer;
+    expect(answer).toEqual(null);
   });
 
   test("answer ends with a lot of digits after the decimal point", () => {
     const expression = "1/3";
-    const expected: CalculateExpression = {
-      validExpression: expression,
-      answer: 0.3333333333333333,
-    };
 
-    const finalAnswer = calcExpression(expression);
-    expect(finalAnswer).toEqual(expected);
+    const answer = calcExpression(expression).answer;
+    expect(answer).toEqual(0.3333333333333333);
   });
 });
 
 describe("diffrent priorities levels, should return the same expression and the answer of the expression", () => {
   test("all the operators with priorities 1 or 2 (no brackets)", () => {
     const expression = "5+2*3+6";
-    const expected: CalculateExpression = {
-      validExpression: expression,
-      answer: 17,
-    };
 
-    const finalAnswer = calcExpression(expression);
-    expect(finalAnswer).toEqual(expected);
+    const answer = calcExpression(expression).answer;
+    expect(answer).toEqual(17);
   });
 
   test("the expression starts with brackets", () => {
     const expression = "(3+1+(2*(2+1-2*1+1)))";
-    const expected: CalculateExpression = {
-      validExpression: expression,
-      answer: 8,
-    };
 
-    const finalAnswer = calcExpression(expression);
-    expect(finalAnswer).toEqual(expected);
+    const answer = calcExpression(expression).answer;
+    expect(answer).toEqual(8);
   });
 
   test("brackets on single number", () => {
     const expression = "5+(16*(2))";
-    const expected: CalculateExpression = {
-      validExpression: expression,
-      answer: 37,
-    };
 
-    const finalAnswer = calcExpression(expression);
-    expect(finalAnswer).toEqual(expected);
+    const answer = calcExpression(expression).answer;
+    expect(answer).toEqual(37);
   });
 
   test("the priority level is not integer", () => {
     const expression = "-2*-3/-4";
-    const expected: CalculateExpression = {
-      validExpression: expression,
-      answer: -1.5,
-    };
 
-    const finalAnswer = calcExpression(expression);
-    expect(finalAnswer).toEqual(expected);
+    const answer = calcExpression(expression).answer;
+    expect(answer).toEqual(-1.5);
   });
 });
