@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest";
-import { validBrackets } from "../src/services/validateExpression";
+import { validBrackets } from "../src/services/validBrackets";
 
 describe("the expression contains uneven amount of opening and closing brackets", () => {
   test("valid brackets, should return that can be calculated", () => {

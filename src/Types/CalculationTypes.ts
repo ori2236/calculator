@@ -1,10 +1,10 @@
-import type { Operator } from "./LabelTypes";
+import type { OperatorNote } from "./LabelTypes";
 
-export type OperatorObject = { operatorNote: Operator; priority: number };
+export type Operator = { note: OperatorNote; priority: number };
 
 export type ValidExpression = {
-  canBeCalculate: boolean;
-  validExpressionAsArray: string[];
+  canBeCalculated: boolean;
+  validExpression: string[];
 };
 
 export interface CalculateExpression {
@@ -13,18 +13,14 @@ export interface CalculateExpression {
 }
 
 export interface Stacks {
-  operatorsStack: OperatorObject[];
+  operatorsStack: Operator[];
   numbersStack: number[];
 }
 
-export interface StacksState {
-  operatorsStack: OperatorObject[];
-  numbersStack: number[];
+export interface StacksState extends Stacks {
   depthBonus: number;
 }
 
-export interface StopState {
-  operatorsStack: OperatorObject[];
-  numbersStack: number[];
+export interface StopState extends Stacks {
   stopped: boolean;
 }

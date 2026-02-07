@@ -1,5 +1,5 @@
 import "./ButtonsGrid.css";
-import { gridLabels, isNoteLabel, isSpecialNoteLabel, type Label, type SpecialNotes } from "../Types/LabelTypes";
+import { gridLabels, isNoteLabel, isSpecialLabel, type Label, type SpecialLabel } from "../Types/LabelTypes";
 import { calcExpression } from "../services/calcExpression";
 import { DeleteAllButton } from "../ButtonsKind/DeleteAllButton";
 import { DeleteButton } from "../ButtonsKind/DeleteButton";
@@ -18,7 +18,7 @@ export interface ButtonsGridProps {
 
 export const ButtonsGrid = (props: ButtonsGridProps) => {
     const { expression, setExpression, inputRef, cursorPositionRef, answer, setAnswer } = props;
-    
+
     const handleExpressionChange = (actionFunction: () => string) => {
         const newExpression = actionFunction();
 
@@ -38,8 +38,8 @@ export const ButtonsGrid = (props: ButtonsGridProps) => {
             setAnswer(null);
         }
     };
-    
-    const specialNotesButtons: Record<SpecialNotes, (label: SpecialNotes) => JSX.Element> = {
+
+    const specialLabelsButtons: Record<SpecialLabel, (label: SpecialLabel) => JSX.Element> = {
         AC: (label) => (
             <DeleteAllButton
                 key={label}
@@ -65,8 +65,8 @@ export const ButtonsGrid = (props: ButtonsGridProps) => {
     };
 
     const buttons = (label: Label) => {
-        if (isSpecialNoteLabel(label)) {
-            return specialNotesButtons[label](label);
+        if (isSpecialLabel(label)) {
+            return specialLabelsButtons[label](label);
         }
 
         if (isNoteLabel(label)) {

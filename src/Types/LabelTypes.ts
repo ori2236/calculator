@@ -1,52 +1,70 @@
-const digits = [
-  "0", "1", "2", "3", "4", "5", "6","7", "8", "9", "."
-] as const;
-type Digit = (typeof digits)[number];
+const digits = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"] as const;
+type DigitChar = (typeof digits)[number];
+
+const numberChars = [...digits, "."] as const;
+type NumberChar = (typeof numberChars)[number];
 
 const brackets = ["(", ")"] as const;
 export type Bracket = (typeof brackets)[number];
 
 const operators = ["+", "-", "*", "/"] as const;
-export type Operator = (typeof operators)[number];
+export type OperatorNote = (typeof operators)[number];
 
-const specialNotes = ["AC", "delete", "="] as const;
-export type SpecialNotes = (typeof specialNotes)[number];
+const specialLabels = ["AC", "delete", "="] as const;
+export type SpecialLabel = (typeof specialLabels)[number];
 
-const labels = [...digits, ...brackets, ...operators, ...specialNotes] as const;
-export type Label = (typeof labels)[number];
+const notes = [...numberChars, ...brackets, ...operators] as const;
+export type Note = (typeof notes)[number];
 
-export type Note = Exclude<Label, SpecialNotes>;
+export type Label = Note | SpecialLabel;
 
 export const gridLabels: Label[] = [
-  "AC", "(", ")", "/",
-  "7", "8", "9", "*",
-  "4", "5", "6", "-",
-  "1", "2", "3", "+",
-  "0", ".", "delete", "=",
+  "AC",
+  "(",
+  ")",
+  "/",
+  "7",
+  "8",
+  "9",
+  "*",
+  "4",
+  "5",
+  "6",
+  "-",
+  "1",
+  "2",
+  "3",
+  "+",
+  "0",
+  ".",
+  "delete",
+  "=",
 ];
 
-export type IconLabel = "delete" | "*";
+export function isDigitChar(char: string): char is DigitChar {
+  return digits.some((digit) => digit === char);
+}
 
-export const isDigitLabel = (note: string): note is Digit => {
-  const numbersPattern = /^[0-9.]+$/;
-  return numbersPattern.test(note);
+export function isNumberChar(char: string): char is NumberChar {
+  return numberChars.some((number) => number === char);
+}
+
+export const isNumberLabel = (string: string) => {
+  return [...string].every((char) => isNumberChar(char));
 };
 
-export const isOperatorLabel = (note: string): note is Operator => {
-  return (operators as readonly string[]).includes(note);
+export const isOperatorLabel = (string: string): string is OperatorNote => {
+  return operators.some((op) => op === string);
 };
 
-export const isBracketsLabel = (note: string): note is Bracket => {
-  return (brackets as readonly string[]).includes(note);
+export const isBracketsLabel = (string: string): string is Bracket => {
+  return brackets.some((b) => b === string);
 };
 
-export const isSpecialNoteLabel = (note: string): note is SpecialNotes => {
-  return (specialNotes as readonly string[]).includes(note);
+export const isSpecialLabel = (note: string): note is SpecialLabel => {
+  return specialLabels.some((s) => s === note);
 };
 
-export const isNoteLabel = (note: string): note is Note => {
-  return (
-    (labels as readonly string[]).includes(note) &&
-    !(specialNotes as readonly string[]).includes(note)
-  );
+export const isNoteLabel = (string: string): string is Note => {
+  return notes.some((note) => note === string);
 };

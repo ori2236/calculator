@@ -1,5 +1,13 @@
+import { FiDelete } from "react-icons/fi";
 import { ButtonUI } from "../Button/ButtonUI";
-import type { deleteButtonProps } from "../Types/ClassTypes";
+import type { RefObject } from "react";
+
+interface deleteButtonProps {
+    handleExpressionChange: (onClick: () => string) => void;
+  expression: string;
+  inputRef: RefObject<HTMLInputElement | null>;
+  cursorPositionRef: RefObject<number | null>;
+}
 
 export const DeleteButton = (props: deleteButtonProps) => {
     const { handleExpressionChange, expression, inputRef, cursorPositionRef } = props;
@@ -20,6 +28,5 @@ export const DeleteButton = (props: deleteButtonProps) => {
         return expression.slice(0, startCurserIndex - 1) + expression.slice(startCurserIndex)
     };
 
-
-    return <ButtonUI label={"delete"} onPress={() => handleExpressionChange(onDelete)} />;
+    return <ButtonUI label={"delete"} onPress={() => handleExpressionChange(onDelete)} icon={<FiDelete />}/>;
 }

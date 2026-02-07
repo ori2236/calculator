@@ -1,5 +1,5 @@
 import type {
-  OperatorObject,
+  Operator,
   Stacks,
   StopState,
   CalculateExpression,
@@ -7,29 +7,30 @@ import type {
 } from "../Types/CalculationTypes";
 import {
   isBracketsLabel,
-  isDigitLabel,
+  isNumberLabel,
   isOperatorLabel,
   type Bracket,
-  type Operator,
+  type OperatorNote,
 } from "../Types/LabelTypes";
 import { validateExpression } from "./validateExpression";
 
-const operatorsPriorities: Record<Operator, number> = {
+const operatorsPriorities: Record<OperatorNote, number> = {
   "+": 1,
   "-": 1,
   "*": 2,
   "/": 2,
 };
 
-const getExtraPriority = (arr: string[], currentIndex: number) => {
+const getExtraPriority = (array: string[], currentIndex: number) => {
   if (currentIndex === 0) return 1.5;
-  return /[/*]/.test(arr[currentIndex - 1]) ? 1.5 : 0;
+  const previousNote = array[currentIndex - 1];
+  return previousNote === "*" || previousNote === "/" ? 1.5 : 0;
 };
 
 const applyOperatorFactory = (
   firstNum: number,
   secondNum: number,
-): Record<Operator, number> => ({
+): Record<OperatorNote, number> => ({
   "+": firstNum + secondNum,
   "-": firstNum - secondNum,
   "*": firstNum * secondNum,
@@ -37,36 +38,34 @@ const applyOperatorFactory = (
 });
 
 const applyTopOperator = (
-  operatorsStack: OperatorObject[],
+  operatorsStack: Operator[],
   numbersStack: number[],
 ) => {
   const lastOperator = operatorsStack[operatorsStack.length - 1];
   const numbersStackLength = numbersStack.length;
 
   const isUnaryMinus =
-    lastOperator.operatorNote === "-" && lastOperator.priority % 1 !== 0;
+    lastOperator.note === "-" && lastOperator.priority % 1 !== 0;
 
   const secondNum = numbersStack[numbersStackLength - 1];
-  if (lastOperator.operatorNote === "/" && secondNum === 0)
+  if (lastOperator.note === "/" && secondNum === 0)
     throw new Error("division by 0");
 
   const firstNum = isUnaryMinus ? 0 : numbersStack[numbersStackLength - 2];
 
-  const result = applyOperatorFactory(firstNum, secondNum)[
-    lastOperator.operatorNote
-  ];
+  const result = applyOperatorFactory(firstNum, secondNum)[lastOperator.note];
 
-  const newnumbersStack = [
+  const newNumbersStack = [
     ...numbersStack.slice(0, isUnaryMinus ? -1 : -2),
     result,
   ];
   const newoperatorsStack = operatorsStack.slice(0, -1);
 
-  return { operatorsStack: newoperatorsStack, numbersStack: newnumbersStack };
+  return { operatorsStack: newoperatorsStack, numbersStack: newNumbersStack };
 };
 
 const calculateOperators = (
-  operatorsStack: OperatorObject[],
+  operatorsStack: Operator[],
   numbersStack: number[],
   currentPriority: number,
 ): Stacks => {
@@ -79,7 +78,7 @@ const calculateOperators = (
       if (currentPriority > topOperator.priority) {
         return { ...state, stopped: true };
       }
-      
+
       const arrays = applyTopOperator(state.operatorsStack, state.numbersStack);
       return { ...arrays, stopped: false };
     },
@@ -92,25 +91,17 @@ const calculateOperators = (
   };
 };
 
-const bracketCase: Record<Bracket, (s: StacksState) => StacksState> = {
-  "(": (s) => ({
-    operatorsStack: s.operatorsStack,
-    numbersStack: s.numbersStack,
-    depthBonus: s.depthBonus + 2,
-  }),
-  ")": (s) => ({
-    operatorsStack: s.operatorsStack,
-    numbersStack: s.numbersStack,
-    depthBonus: s.depthBonus - 2,
-  }),
+const bracketCase: Record<Bracket, (state: StacksState) => StacksState> = {
+  "(": (state) => ({ ...state, depthBonus: state.depthBonus + 2 }),
+  ")": (state) => ({ ...state, depthBonus: state.depthBonus - 2 }),
 };
 
 const calculateResult = (validExpressionArray: string[]) => {
   return validExpressionArray.reduce<StacksState>(
-    (state, note, index, arr) => {
+    (state, note, index, array) => {
       if (isBracketsLabel(note)) return bracketCase[note](state);
 
-      if (isDigitLabel(note)) {
+      if (isNumberLabel(note)) {
         return {
           ...state,
           numbersStack: [...state.numbersStack, Number(note)],
@@ -121,7 +112,7 @@ const calculateResult = (validExpressionArray: string[]) => {
         const priority =
           state.depthBonus +
           operatorsPriorities[note] +
-          getExtraPriority(arr, index);
+          getExtraPriority(array, index);
 
         const newStacks = calculateOperators(
           state.operatorsStack,
@@ -133,7 +124,7 @@ const calculateResult = (validExpressionArray: string[]) => {
           ...state,
           operatorsStack: [
             ...newStacks.operatorsStack,
-            { operatorNote: note, priority },
+            { note: note, priority },
           ],
           numbersStack: newStacks.numbersStack,
         };
@@ -146,10 +137,12 @@ const calculateResult = (validExpressionArray: string[]) => {
 };
 
 export const calcExpression = (expression: string): CalculateExpression => {
-  const { canBeCalculate, validExpressionAsArray: validExpressionArray } =
-    validateExpression(expression);
+  const {
+    canBeCalculated: canBeCalculated,
+    validExpression: validExpressionArray,
+  } = validateExpression(expression);
   const validExpression = validExpressionArray.join("");
-  if (!canBeCalculate) return { validExpression, answer: null };
+  if (!canBeCalculated) return { validExpression, answer: null };
 
   try {
     const calcedExpression = calculateResult(validExpressionArray);
