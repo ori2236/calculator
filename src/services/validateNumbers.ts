@@ -8,78 +8,85 @@ import {
 } from "../Types/LabelTypes";
 
 const endsWithDecimalPoint = (validExpression: string[]) => {
-  return validExpression.some((note) => {
-    return isNumberLabel(note) && note.at(-1) === ".";
-  });
+  const lastNote = validExpression.at(-1);
+  return lastNote && isNumberLabel(lastNote) && lastNote.endsWith(".");
 };
 
-export interface SplitedExpressByNumbers {
-  tokens: string[];
-  current: string;
+interface SplitExpressionState {
+  notes: string[];
+  currentNumber: string;
 }
 
 const splitExpressionByNotes = (expression: string) => {
-  const splitByNumbers = [...expression].reduce<SplitedExpressByNumbers>(
+  const splitByNumbers = [...expression].reduce<SplitExpressionState>(
     (state, char) =>
       isNumberChar(char)
-        ? { ...state, current: state.current + char }
-        : { tokens: [...state.tokens, state.current, char], current: "" },
-    { tokens: [], current: "" },
+        ? { ...state, currentNumber: state.currentNumber + char }
+        : { notes: [...state.notes, state.currentNumber, char], currentNumber: "" },
+    { notes: [], currentNumber: "" },
   );
 
-  return [...splitByNumbers.tokens, splitByNumbers.current].filter(Boolean);
+  return [...splitByNumbers.notes, splitByNumbers.currentNumber].filter(Boolean);
 };
 
 const keepOnlyFirstDecimalPoint = (note: string) => {
   const firstDecimalPointIndex = note.indexOf(".");
   if (firstDecimalPointIndex === -1) return note;
 
-  const before = note.slice(0, firstDecimalPointIndex + 1);
-  const after = note.slice(firstDecimalPointIndex + 1).replaceAll(".", "");
-  return before + after;
+  const beforeDecimalPoint = note.slice(0, firstDecimalPointIndex + 1);
+  const afterDecimalPoint = note
+    .slice(firstDecimalPointIndex + 1)
+    .replaceAll(".", "");
+  return beforeDecimalPoint + afterDecimalPoint;
 };
-
-const shouldTrimZerosAtEnd = (note: string, nextNote: string) =>
-  note.includes(".") &&
-  note.endsWith("0") &&
-  (isOperatorLabel(nextNote) || isBracketsLabel(nextNote));
 
 const trimZerosAtTheEnd = (number: string): string =>
   number.endsWith("0") ? trimZerosAtTheEnd(number.slice(0, -1)) : number;
+
+const trimZerosAtEnd = (number: string, nextNumber: string) => {
+  const shouldTrimZerosAtEnd =
+    number.includes(".") &&
+    number.endsWith("0") &&
+    (isOperatorLabel(nextNumber) || isBracketsLabel(nextNumber));
+
+  return shouldTrimZerosAtEnd ? trimZerosAtTheEnd(number) : number;
+};
+
+const trimDecimalPoint = (number: string, nextNumber: string) => {
+  const shouldTrimDecimalPoint =
+    number.endsWith(".") &&
+    (isOperatorLabel(nextNumber) || isBracketsLabel(nextNumber));
+  return shouldTrimDecimalPoint ? number.slice(0, -1) : number;
+};
 
 const trimZerosAtTheStart = (number: string): string =>
   number.length > 1 && number[0] === "0" && isDigitChar(number[1])
     ? trimZerosAtTheStart(number.slice(1))
     : number;
 
-const trimZerosAndPoint = (number: string): string => {
-  const noZerosAtTheEnd = trimZerosAtTheEnd(number);
-  const deleteDecimalPoint = noZerosAtTheEnd.endsWith(".")
-    ? noZerosAtTheEnd.slice(0, -1)
-    : noZerosAtTheEnd;
+const trimZeros = (number: string, nextNote: string) => {
+  const noZerosAtTheEnd = trimZerosAtEnd(number, nextNote);
+  const deleteDecimalPoint = trimDecimalPoint(noZerosAtTheEnd, nextNote);
   return trimZerosAtTheStart(deleteDecimalPoint);
 };
 
 const normalizeNumber = (note: string, nextNote: string) => {
   const withLeadingZero = note.startsWith(".") ? `0${note}` : note;
   const onlyOneDecimalPoint = keepOnlyFirstDecimalPoint(withLeadingZero);
-  const trimmedZerosAtEnd = shouldTrimZerosAtEnd(onlyOneDecimalPoint, nextNote)
-    ? trimZerosAndPoint(onlyOneDecimalPoint)
-    : onlyOneDecimalPoint;
-  return trimZerosAtTheStart(trimmedZerosAtEnd);
+  return trimZeros(onlyOneDecimalPoint, nextNote);
 };
 
 export const validateNumbers = (expression: string): ValidExpression => {
   const splitedExpression = splitExpressionByNotes(expression);
 
-  const validNumbersExpression = splitedExpression.map((note, index, array) =>
+  const validExpression = splitedExpression.map((note, index, array) =>
     isNumberLabel(note) ? normalizeNumber(note, array[index + 1]) : note,
   );
 
-  const canBeCalculated = !endsWithDecimalPoint(validNumbersExpression);
+  const canBeCalculated = !endsWithDecimalPoint(validExpression);
 
   return {
-    canBeCalculated: canBeCalculated && validNumbersExpression.length > 1,
-    validExpression: validNumbersExpression,
+    canBeCalculated,
+    validExpression,
   };
 };

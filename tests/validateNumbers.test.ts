@@ -106,7 +106,7 @@ describe("should join the digits and decimal points and return valid numbers in 
     const expression = "24+5.-496.";
     const expected: ValidExpression = {
       canBeCalculated: false,
-      validExpression: ["24", "+", "5.", "-", "496."],
+      validExpression: ["24", "+", "5", "-", "496."],
     };
 
     const validExpression = validateNumbers(expression);

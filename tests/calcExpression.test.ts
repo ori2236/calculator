@@ -1,6 +1,5 @@
 import { describe, test, expect } from "vitest";
 import { calcExpression } from "../src/services/calcExpression";
-import { CalculateExpression } from "../src/Types/CalculationTypes";
 
 describe("same priority level for all the tests, should return the same expression and the answer of the expression", () => {
   test("all the operators with priority 1 ('+','-')", () => {

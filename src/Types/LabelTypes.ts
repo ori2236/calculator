@@ -49,22 +49,22 @@ export function isNumberChar(char: string): char is NumberChar {
   return numberChars.some((number) => number === char);
 }
 
-export const isNumberLabel = (string: string) => {
-  return [...string].every((char) => isNumberChar(char));
+export const isNumberLabel = (tokens: string) => {
+  return [...tokens].every((char) => isNumberChar(char));
 };
 
-export const isOperatorLabel = (string: string): string is OperatorNote => {
-  return operators.some((op) => op === string);
+export const isOperatorLabel = (token: string): token is OperatorNote => {
+  return operators.some((op) => op === token);
 };
 
-export const isBracketsLabel = (string: string): string is Bracket => {
-  return brackets.some((b) => b === string);
+export const isBracketsLabel = (token: string): token is Bracket => {
+  return brackets.some((b) => b === token);
 };
 
-export const isSpecialLabel = (note: string): note is SpecialLabel => {
-  return specialLabels.some((s) => s === note);
+export const isSpecialLabel = (token: string): token is SpecialLabel => {
+  return specialLabels.some((s) => s === token);
 };
 
-export const isNoteLabel = (string: string): string is Note => {
-  return notes.some((note) => note === string);
+export const isNoteLabel = (token: string): token is Note => {
+  return notes.some((note) => note === token);
 };

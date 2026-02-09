@@ -15,16 +15,18 @@ const haveStructureProblems = (splitedExpressionByNotes: string[]) => {
       splitedExpressionByNotes[0] === "-" &&
       isNumberLabel(splitedExpressionByNotes[1]));
 
-  return (
-    oneNumberOnly ||
-    splitedExpressionByNotes.some((note, index, array) => {
-      const nextNote = array[index + 1];
-      return (
-        (isOperatorLabel(note) && nextNote === ")") ||
-        (note === "(" && nextNote === ")")
-      );
-    })
+  const endsWithOperator = isOperatorLabel(
+    splitedExpressionByNotes[splitedExpressionByNotes.length - 1],
   );
+
+  const invalidAdjustmentToClosingBracket = splitedExpressionByNotes.some(
+    (note, index, array) => {
+      const nextNote = array[index + 1];
+      return (isOperatorLabel(note) || note === "(") && nextNote === ")";
+    },
+  );
+
+  return oneNumberOnly || endsWithOperator || invalidAdjustmentToClosingBracket;
 };
 
 const invalidChecks = (expression: string): ValidExpression => {
@@ -49,6 +51,37 @@ const invalidChecks = (expression: string): ValidExpression => {
   };
 };
 
+const deleteAdjacentOperators = (expression: string[]) =>
+  expression.flatMap((note, index, array) => {
+    if (index === array.length - 1) return [note];
+    const nextNote = array[index + 1];
+    const isTwoAdjustOperator =
+      isOperatorLabel(note) && isOperatorLabel(nextNote);
+    const isException = (note === "*" || note === "/") && nextNote === "-";
+    return isTwoAdjustOperator && !isException ? [] : [note];
+  });
+
+const isNumberOrCloseParen = (note: string) =>
+  note === ")" || isNumberLabel(note);
+const isNumberOrOpenParen = (note: string) =>
+  note === "(" || isNumberLabel(note);
+
+const addMultiplicationOperator = (expression: string[]) =>
+  expression.flatMap((note, index, array) => {
+    if (index === 0) return [note];
+    const previousNote = array[index - 1];
+
+    const isOpeningBracketAdjustToOperator =
+      previousNote === "(" && isOperatorLabel(note) && note !== "-";
+
+    if (isOpeningBracketAdjustToOperator) return [];
+
+    const shouldAddMultiplicationOperator =
+      isNumberOrCloseParen(previousNote) && isNumberOrOpenParen(note);
+
+    return shouldAddMultiplicationOperator ? ["*", note] : [note];
+  });
+
 export const validateExpression = (expression: string): ValidExpression => {
   const validNumbersExpression = invalidChecks(expression);
   if (!validNumbersExpression.canBeCalculated)
@@ -57,46 +90,14 @@ export const validateExpression = (expression: string): ValidExpression => {
       validExpression: validNumbersExpression.validExpression,
     };
 
-  const exceptionPattern = /[*/]/;
-  const numbersAndOpenBracketPattern = /\)|[0-9.]+/;
-  const numbersAndCloseBracketPattern = /\(|[0-9.]+/;
-
-  const deleteAdjacentOperators =
-    validNumbersExpression.validExpression.flatMap((note, index, array) => {
-      if (index === array.length - 1) return [note];
-      const nextNote = array[index + 1];
-      const isTwoAdjustOperator =
-        isOperatorLabel(note) && isOperatorLabel(nextNote);
-      const isException = exceptionPattern.test(note) && nextNote === "-";
-      return isTwoAdjustOperator && !isException ? [] : [note];
-    });
-
-  if (/[+\-*/]$/.test(deleteAdjacentOperators.join("")))
-    return {
-      canBeCalculated: false,
-      validExpression: deleteAdjacentOperators,
-    };
-
-  const validExpression = deleteAdjacentOperators.flatMap(
-    (note, index, array) => {
-      if (index === 0) return [note];
-      const previousNote = array[index - 1];
-
-      const isOpeningBracketAdjustToOperator =
-        previousNote === "(" && isOperatorLabel(note) && note !== "-";
-
-      if (isOpeningBracketAdjustToOperator) return [];
-
-      const isMultipicationOperatorNeeded =
-        numbersAndOpenBracketPattern.test(previousNote) &&
-        numbersAndCloseBracketPattern.test(note);
-
-      return isMultipicationOperatorNeeded ? ["*", note] : [note];
-    },
+  const deletedAdjacentOperators = deleteAdjacentOperators(
+    validNumbersExpression.validExpression,
   );
+
+  const validExpression = addMultiplicationOperator(deletedAdjacentOperators);
 
   return {
     canBeCalculated: true,
-    validExpression: validExpression,
+    validExpression,
   };
 };
