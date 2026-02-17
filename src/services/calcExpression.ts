@@ -42,17 +42,15 @@ const applyTopOperator = (
   numbersStack: number[],
 ) => {
   const lastOperator = operatorsStack[operatorsStack.length - 1];
-  const numbersStackLength = numbersStack.length;
 
   const isUnaryMinus =
     lastOperator.note === "-" && lastOperator.priority % 1 !== 0;
 
-  const secondNum = numbersStack[numbersStackLength - 1];
+  const secondNum = numbersStack[numbersStack.length - 1];
   if (lastOperator.note === "/" && secondNum === 0)
     throw new Error("division by 0");
-
-  const firstNum = isUnaryMinus ? 0 : numbersStack[numbersStackLength - 2];
-
+  const firstNum = isUnaryMinus ? 0 : numbersStack[numbersStack.length - 2];
+  
   const result = applyOperatorFactory(firstNum, secondNum)[lastOperator.note];
 
   const newNumbersStack = [
@@ -100,7 +98,7 @@ const calculateResult = (validExpressionArray: string[]) => {
   return validExpressionArray.reduce<StacksState>(
     (state, note, index, array) => {
       if (isBracketsLabel(note)) return bracketCase[note](state);
-
+      
       if (isNumberLabel(note)) {
         return {
           ...state,
@@ -137,10 +135,8 @@ const calculateResult = (validExpressionArray: string[]) => {
 };
 
 export const calcExpression = (expression: string): CalculateExpression => {
-  const {
-    canBeCalculated: canBeCalculated,
-    validExpression: validExpressionArray,
-  } = validateExpression(expression);
+  const { canBeCalculated, validExpression: validExpressionArray } =
+    validateExpression(expression);
   const validExpression = validExpressionArray.join("");
   if (!canBeCalculated) return { validExpression, answer: null };
 

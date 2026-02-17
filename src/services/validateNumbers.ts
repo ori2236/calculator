@@ -5,11 +5,17 @@ import {
   isNumberChar,
   isNumberLabel,
   isOperatorLabel,
+  type OperatorNote,
 } from "../Types/LabelTypes";
 
-const endsWithDecimalPoint = (validExpression: string[]) => {
-  const lastNote = validExpression.at(-1);
-  return lastNote && isNumberLabel(lastNote) && lastNote.endsWith(".");
+const operatorAfterE = (char: OperatorNote, currentNumber: string) =>
+  currentNumber.endsWith("e") && (char === "+" || char === "-");
+
+const doesNeedToConcat = (char: string, currentNumber: string) => {
+  return (
+    isNumberChar(char) ||
+    (isOperatorLabel(char) && operatorAfterE(char, currentNumber))
+  );
 };
 
 interface SplitExpressionState {
@@ -20,13 +26,18 @@ interface SplitExpressionState {
 const splitExpressionByNotes = (expression: string) => {
   const splitByNumbers = [...expression].reduce<SplitExpressionState>(
     (state, char) =>
-      isNumberChar(char)
+      doesNeedToConcat(char, state.currentNumber)
         ? { ...state, currentNumber: state.currentNumber + char }
-        : { notes: [...state.notes, state.currentNumber, char], currentNumber: "" },
+        : {
+            notes: [...state.notes, state.currentNumber, char],
+            currentNumber: "",
+          },
     { notes: [], currentNumber: "" },
   );
 
-  return [...splitByNumbers.notes, splitByNumbers.currentNumber].filter(Boolean);
+  return [...splitByNumbers.notes, splitByNumbers.currentNumber].filter(
+    Boolean,
+  );
 };
 
 const keepOnlyFirstDecimalPoint = (note: string) => {
@@ -65,6 +76,7 @@ const trimZerosAtTheStart = (number: string): string =>
     : number;
 
 const trimZeros = (number: string, nextNote: string) => {
+  if (number.includes("e")) return number;
   const noZerosAtTheEnd = trimZerosAtEnd(number, nextNote);
   const deleteDecimalPoint = trimDecimalPoint(noZerosAtTheEnd, nextNote);
   return trimZerosAtTheStart(deleteDecimalPoint);
@@ -74,6 +86,11 @@ const normalizeNumber = (note: string, nextNote: string) => {
   const withLeadingZero = note.startsWith(".") ? `0${note}` : note;
   const onlyOneDecimalPoint = keepOnlyFirstDecimalPoint(withLeadingZero);
   return trimZeros(onlyOneDecimalPoint, nextNote);
+};
+
+const endsWithDecimalPoint = (validExpression: string[]) => {
+  const lastNote = validExpression.at(-1);
+  return lastNote && isNumberLabel(lastNote) && lastNote.endsWith(".");
 };
 
 export const validateNumbers = (expression: string): ValidExpression => {
