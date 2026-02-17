@@ -1,13 +1,11 @@
-import { ButtonUI } from "../Button/ButtonUI";
+import { Button } from "../Button/Button";
 
 export interface deleteAllButtonProps {
-    handleExpressionChange: (onClick: () => string) => void;
+    setNewExpression: (newExpression: string) => void;
 }
 
-const getEmptyExpression = () => "";
-
 export const DeleteAllButton = (props: deleteAllButtonProps) => {
-    const { handleExpressionChange } = props;
+    const { setNewExpression } = props;
 
-    return <ButtonUI label={"AC"} onPress={() => handleExpressionChange(getEmptyExpression)} />;
+    return <Button label={"AC"} onPress={() => setNewExpression("")} />;
 }

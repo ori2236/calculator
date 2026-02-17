@@ -1,15 +1,14 @@
-import { ButtonUI } from "../Button/ButtonUI";
+import { Button } from "../Button/Button";
 
 interface EqualButtonProps {
-    handleExpressionChange: (onClick: () => string) => void;
+  setNewExpression: (newExpression: string) => void;
   answer: number | null;
 }
 
 export const EqualButton = (props: EqualButtonProps) => {
-    const { handleExpressionChange, answer } = props;
+  const { setNewExpression, answer } = props;
 
-    const getAnswerAsString = () => answer ? answer.toString() : "";
+  const getAnswerAsString = answer ? answer.toString() : "";
 
-
-    return <ButtonUI label={"="} onPress={() => handleExpressionChange(getAnswerAsString)} />;
+  return <Button label={"="} onPress={() => setNewExpression(getAnswerAsString)} />;
 }

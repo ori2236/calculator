@@ -19,9 +19,7 @@ export interface ButtonsGridProps {
 export const ButtonsGrid = (props: ButtonsGridProps) => {
     const { expression, setExpression, inputRef, cursorPositionRef, answer, setAnswer } = props;
 
-    const handleExpressionChange = (actionFunction: () => string) => {
-        const newExpression = actionFunction();
-
+    const setNewExpression = (newExpression: string) => {
         if (newExpression) {
             const { validExpression, answer } = calcExpression(newExpression);
             const deltaLengthExpressions =
@@ -43,13 +41,13 @@ export const ButtonsGrid = (props: ButtonsGridProps) => {
         AC: (label) => (
             <DeleteAllButton
                 key={label}
-                handleExpressionChange={handleExpressionChange}
+                setNewExpression={setNewExpression}
             />
         ),
         delete: (label) => (
             <DeleteButton
                 key={label}
-                handleExpressionChange={handleExpressionChange}
+                setNewExpression={setNewExpression}
                 expression={expression}
                 inputRef={inputRef}
                 cursorPositionRef={cursorPositionRef}
@@ -58,7 +56,7 @@ export const ButtonsGrid = (props: ButtonsGridProps) => {
         "=": (label) => (
             <EqualButton
                 key={label}
-                handleExpressionChange={handleExpressionChange}
+                setNewExpression={setNewExpression}
                 answer={answer}
             />
         ),
@@ -74,14 +72,13 @@ export const ButtonsGrid = (props: ButtonsGridProps) => {
                 <NotesButton
                     key={label}
                     note={label}
-                    handleExpressionChange={handleExpressionChange}
+                    setNewExpression={setNewExpression}
                     expression={expression}
                     inputRef={inputRef}
                     cursorPositionRef={cursorPositionRef}
                 />
             );
         }
-
         return null;
     };
 
