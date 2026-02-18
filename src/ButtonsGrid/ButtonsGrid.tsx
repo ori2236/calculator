@@ -58,6 +58,7 @@ export const ButtonsGrid = (props: ButtonsGridProps) => {
                 key={label}
                 setNewExpression={setNewExpression}
                 answer={answer}
+                expression={expression}
             />
         ),
     };

@@ -85,20 +85,17 @@ const addMultiplicationOperator = (expression: string[]) =>
 
 export const validateExpression = (expression: string): ValidExpression => {
   const validNumbersExpression = invalidChecks(expression);
-  if (!validNumbersExpression.canBeCalculated)
-    return {
-      canBeCalculated: false,
-      validExpression: validNumbersExpression.validExpression,
-    };
 
   const deletedAdjacentOperators = deleteAdjacentOperators(
     validNumbersExpression.validExpression,
   );
-
   const validExpression = addMultiplicationOperator(deletedAdjacentOperators);
 
+  const canBeCalculated =
+    validNumbersExpression.canBeCalculated && !haveStructureProblems(validExpression);
+
   return {
-    canBeCalculated: true,
+    canBeCalculated,
     validExpression,
   };
 };
