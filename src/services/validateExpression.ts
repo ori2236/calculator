@@ -7,13 +7,14 @@ import {
 import { validateNumbers } from "./validateNumbers";
 import { validBrackets } from "./validBrackets";
 
+const isSingleNumberExpression = (tokens: string[]) => {
+  if (tokens.length === 1) return isNumberLabel(tokens[0]);
+  if (tokens.length === 2) return tokens[0] === "-" && isNumberLabel(tokens[1]);
+  return false;
+};
+
 const haveStructureProblems = (splitedExpressionByNotes: string[]) => {
-  const oneNumberOnly =
-    (splitedExpressionByNotes.length === 1 &&
-      isNumberLabel(splitedExpressionByNotes[0])) ||
-    (splitedExpressionByNotes.length === 2 &&
-      splitedExpressionByNotes[0] === "-" &&
-      isNumberLabel(splitedExpressionByNotes[1]));
+  const oneNumberOnly = isSingleNumberExpression(splitedExpressionByNotes);
 
   const endsWithOperator = isOperatorLabel(
     splitedExpressionByNotes[splitedExpressionByNotes.length - 1],
