@@ -1,5 +1,7 @@
 import "./Display.css"
+import type { AnswerLine } from "../Types/CalculationTypes";
 import { useLayoutEffect, type RefObject } from "react";
+import { isValidationError } from "../Types/LabelTypes";
 
 export const keepCaretVisible = (input: HTMLInputElement, curserPosition: number) => {
     const canvas = document.createElement("canvas");
@@ -29,11 +31,11 @@ export interface DisplayProps {
     expression: string,
     inputRef: RefObject<HTMLInputElement | null>,
     cursorPositionRef: RefObject<number | null>,
-    answer: number | null
+    answerLine: AnswerLine
 }
 
 export const Display = (props: DisplayProps) => {
-    const { expression, inputRef, cursorPositionRef, answer } = props;
+    const { expression, inputRef, cursorPositionRef, answerLine } = props;
 
     useLayoutEffect(() => {
         const inputObject = inputRef.current;
@@ -48,7 +50,6 @@ export const Display = (props: DisplayProps) => {
         }
     }, [expression, inputRef, cursorPositionRef]);
 
-
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         const allowedKeys = ['ArrowLeft', 'ArrowRight'];
 
@@ -56,6 +57,11 @@ export const Display = (props: DisplayProps) => {
             e.preventDefault();
         }
     };
+
+    const validOutput = answerLine === "Empty expression" ? "" : answerLine;
+
+    const isError = isValidationError(answerLine.toString())
+    const lineKind = isError ? "answerLine errorLine" : "answerLine resultLine";
 
     return (
         <div className="display">
@@ -65,7 +71,7 @@ export const Display = (props: DisplayProps) => {
                 className="expressionLine"
                 onKeyDown={handleKeyDown}
             />
-            <p className="answerLine">{answer}</p>
+            <p className={lineKind}>{validOutput}</p>
         </div>
     )
 }

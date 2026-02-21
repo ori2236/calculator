@@ -1,26 +1,30 @@
 import "./ButtonsGrid.css";
-import { gridLabels, isNoteLabel, isSpecialLabel, type Label, type SpecialLabel } from "../Types/LabelTypes";
+import { gridLabels, isValidationError, isNoteLabel, isSpecialLabel, type Label, type SpecialLabel } from "../Types/LabelTypes";
 import { calcExpression } from "../services/calcExpression";
 import { DeleteAllButton } from "../ButtonsKind/DeleteAllButton";
 import { DeleteButton } from "../ButtonsKind/DeleteButton";
 import { EqualButton } from "../ButtonsKind/EqualButton";
 import { NotesButton } from "../ButtonsKind/NotesButton";
 import type { Dispatch, SetStateAction, RefObject, JSX } from "react";
+import type { AnswerLine } from "../Types/CalculationTypes";
 
 export interface ButtonsGridProps {
     expression: string,
     setExpression: Dispatch<SetStateAction<string>>;
     inputRef: RefObject<HTMLInputElement | null>,
     cursorPositionRef: RefObject<number | null>,
-    answer: number | null
-    setAnswer: Dispatch<SetStateAction<number | null>>;
+    answerLine: AnswerLine
+    setAnswerLine: Dispatch<SetStateAction<AnswerLine>>;
 }
 
 export const ButtonsGrid = (props: ButtonsGridProps) => {
-    const { expression, setExpression, inputRef, cursorPositionRef, answer, setAnswer } = props;
+    const { expression, setExpression, inputRef, cursorPositionRef, answerLine, setAnswerLine } = props;
 
     const setNewExpression = (newExpression: string) => {
-        if (newExpression) {
+        if (isValidationError(newExpression)) {
+            setExpression("");
+            setAnswerLine(newExpression);
+        } else {
             const { validExpression, answer } = calcExpression(newExpression);
             const deltaLengthExpressions =
                 validExpression.length - newExpression.length;
@@ -30,10 +34,7 @@ export const ButtonsGrid = (props: ButtonsGridProps) => {
             }
 
             setExpression(validExpression);
-            setAnswer(answer);
-        } else {
-            setExpression("");
-            setAnswer(null);
+            setAnswerLine(answer);
         }
     };
 
@@ -57,7 +58,7 @@ export const ButtonsGrid = (props: ButtonsGridProps) => {
             <EqualButton
                 key={label}
                 setNewExpression={setNewExpression}
-                answer={answer}
+                answerLine={answerLine}
                 expression={expression}
             />
         ),
@@ -80,6 +81,7 @@ export const ButtonsGrid = (props: ButtonsGridProps) => {
                 />
             );
         }
+        
         return null;
     };
 

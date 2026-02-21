@@ -40,7 +40,7 @@ const applyOperatorFactory = (
 const applyTopOperator = (
   operatorsStack: Operator[],
   numbersStack: number[],
-) => {
+): Stacks => {
   const lastOperator = operatorsStack[operatorsStack.length - 1];
 
   const isUnaryMinus =
@@ -48,9 +48,13 @@ const applyTopOperator = (
 
   const secondNum = numbersStack[numbersStack.length - 1];
   if (lastOperator.note === "/" && secondNum === 0)
-    throw new Error("division by 0");
+    return {
+      operatorsStack: [],
+      numbersStack: [],
+      validationError: "Can't divide by 0",
+    };
   const firstNum = isUnaryMinus ? 0 : numbersStack[numbersStack.length - 2];
-  
+
   const result = applyOperatorFactory(firstNum, secondNum)[lastOperator.note];
 
   const newNumbersStack = [
@@ -59,7 +63,11 @@ const applyTopOperator = (
   ];
   const newoperatorsStack = operatorsStack.slice(0, -1);
 
-  return { operatorsStack: newoperatorsStack, numbersStack: newNumbersStack };
+  return {
+    operatorsStack: newoperatorsStack,
+    numbersStack: newNumbersStack,
+    validationError: null,
+  };
 };
 
 const calculateOperators = (
@@ -69,23 +77,22 @@ const calculateOperators = (
 ): Stacks => {
   const calcedArrays = operatorsStack.reduceRight<StopState>(
     (state) => {
-      if (state.stopped || state.operatorsStack.length === 0) return state;
+      if (state.stopped || state.operatorsStack.length === 0 || state.validationError) return state;
 
       const topOperator = state.operatorsStack[state.operatorsStack.length - 1];
 
-      if (currentPriority > topOperator.priority) {
-        return { ...state, stopped: true };
-      }
+      if (currentPriority > topOperator.priority) return { ...state, stopped: true };
 
       const arrays = applyTopOperator(state.operatorsStack, state.numbersStack);
-      return { ...arrays, stopped: false };
+      return { ...arrays, stopped: !!arrays.validationError };
     },
-    { operatorsStack, numbersStack, stopped: false },
+    { operatorsStack, numbersStack, validationError: null, stopped: false },
   );
 
   return {
     operatorsStack: calcedArrays.operatorsStack,
     numbersStack: calcedArrays.numbersStack,
+    validationError: calcedArrays.validationError,
   };
 };
 
@@ -98,7 +105,7 @@ const calculateResult = (validExpressionArray: string[]) => {
   return validExpressionArray.reduce<StacksState>(
     (state, note, index, array) => {
       if (isBracketsLabel(note)) return bracketCase[note](state);
-      
+
       if (isNumberLabel(note)) {
         return {
           ...state,
@@ -118,39 +125,57 @@ const calculateResult = (validExpressionArray: string[]) => {
           priority,
         );
 
+        if (newStacks.validationError) {
+          return {
+            ...state,
+            ...newStacks,
+            validationError: newStacks.validationError,
+          };
+        }
+
         return {
           ...state,
-          operatorsStack: [
-            ...newStacks.operatorsStack,
-            { note: note, priority },
-          ],
+          operatorsStack: [...newStacks.operatorsStack, { note, priority }],
           numbersStack: newStacks.numbersStack,
         };
       }
 
       return state;
     },
-    { operatorsStack: [], numbersStack: [], depthBonus: 0 },
+    {
+      operatorsStack: [],
+      numbersStack: [],
+      depthBonus: 0,
+      validationError: null,
+    },
   );
 };
 
 export const calcExpression = (expression: string): CalculateExpression => {
-  const { canBeCalculated, validExpression: validExpressionArray } =
+  if (!expression) return { validExpression: "", answer: "Empty expression" };
+
+  const { validationError, validExpression: validExpressionArray } =
     validateExpression(expression);
   const validExpression = validExpressionArray.join("");
-  if (!canBeCalculated) return { validExpression, answer: null };
 
-  try {
-    const calcedExpression = calculateResult(validExpressionArray);
-    const finalCalc = calculateOperators(
-      calcedExpression.operatorsStack,
-      calcedExpression.numbersStack,
-      0,
-    );
-    const answer = finalCalc.numbersStack[0];
+  if (validationError) return { validExpression, answer: validationError };
 
-    return { validExpression, answer };
-  } catch {
-    return { validExpression, answer: null };
+  const calcedExpression = calculateResult(validExpressionArray);
+
+  if (calcedExpression.validationError) {
+    return { validExpression, answer: calcedExpression.validationError };
   }
+
+  const finalCalc = calculateOperators(
+    calcedExpression.operatorsStack,
+    calcedExpression.numbersStack,
+    0,
+  );
+
+  if (finalCalc.validationError) {
+    return { validExpression, answer: finalCalc.validationError };
+  }
+  const answer = finalCalc.numbersStack[0];
+
+  return { validExpression, answer };
 };

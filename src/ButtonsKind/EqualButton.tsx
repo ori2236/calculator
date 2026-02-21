@@ -1,15 +1,20 @@
 import { Button } from "../Button/Button";
+import type { AnswerLine } from "../Types/CalculationTypes";
+import { isValidationError, isNumberLabel } from "../Types/LabelTypes";
 
 interface EqualButtonProps {
   setNewExpression: (newExpression: string) => void;
-  answer: number | null;
+  answerLine: AnswerLine;
   expression: string;
 }
 
 export const EqualButton = (props: EqualButtonProps) => {
-  const { setNewExpression, answer, expression } = props;
+  const { setNewExpression, answerLine, expression } = props;
 
-  const newExpression = answer ? answer.toString() : expression;
+  const handleExpressionChange = () => {
+    const newExpression = isValidationError(answerLine.toString()) ? expression : answerLine.toString();
+    setNewExpression(newExpression);
+  }
 
-  return <Button label={"="} onPress={() => setNewExpression(newExpression)} />;
+  return <Button label={"="} onPress={handleExpressionChange} />;
 }

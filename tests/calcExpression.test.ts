@@ -27,7 +27,7 @@ describe("same priority level for all the tests, should return the same expressi
     const expression = "10/(2*3*0)";
 
     const answer = calcExpression(expression).answer;
-    expect(answer).toEqual(null);
+    expect(answer).toEqual("Can't divide by 0");
   });
 
   test("answer ends with a lot of digits after the decimal point", () => {

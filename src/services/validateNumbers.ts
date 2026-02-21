@@ -100,10 +100,12 @@ export const validateNumbers = (expression: string): ValidExpression => {
     isNumberLabel(note) ? normalizeNumber(note, array[index + 1]) : note,
   );
 
-  const canBeCalculated = !endsWithDecimalPoint(validExpression);
+  const calculationError = endsWithDecimalPoint(validExpression)
+    ? "A number endes with decimal point"
+    : null;
 
   return {
-    canBeCalculated,
+    validationError: calculationError,
     validExpression,
   };
 };

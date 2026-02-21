@@ -7,5 +7,6 @@ export interface deleteAllButtonProps {
 export const DeleteAllButton = (props: deleteAllButtonProps) => {
     const { setNewExpression } = props;
 
-    return <Button label={"AC"} onPress={() => setNewExpression("")} />;
+    const handleExpressionChange = () => setNewExpression("");
+    return <Button label={"AC"} onPress={handleExpressionChange} />;
 }

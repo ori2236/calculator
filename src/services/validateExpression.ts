@@ -3,51 +3,67 @@ import {
   isNoteLabel,
   isNumberLabel,
   isOperatorLabel,
+  type ValidationError,
 } from "../Types/LabelTypes";
 import { validateNumbers } from "./validateNumbers";
 import { validBrackets } from "./validBrackets";
 
-const isSingleNumberExpression = (tokens: string[]) => {
-  if (tokens.length === 1) return isNumberLabel(tokens[0]);
-  if (tokens.length === 2) return tokens[0] === "-" && isNumberLabel(tokens[1]);
+const isSingleNumberExpression = (expression: string[]) => {
+  if (expression.length === 1) return isNumberLabel(expression[0]);
+  if (expression.length === 2)
+    return expression[0] === "-" && isNumberLabel(expression[1]);
   return false;
 };
 
-const haveStructureProblems = (splitedExpressionByNotes: string[]) => {
-  const oneNumberOnly = isSingleNumberExpression(splitedExpressionByNotes);
+const oneNumberOnly = (expression: string[]): ValidationError | null =>
+  isSingleNumberExpression(expression) ? "One number only" : null;
 
-  const endsWithOperator = isOperatorLabel(
-    splitedExpressionByNotes[splitedExpressionByNotes.length - 1],
-  );
+const operatorInEdges = (expression: string[]): ValidationError | null =>
+  isOperatorLabel(expression[0]) ||
+  isOperatorLabel(expression[expression.length - 1])
+    ? "Operator in edges"
+    : null;
 
-  const invalidAdjustmentToClosingBracket = splitedExpressionByNotes.some(
+const invalidAdjustmentToClosingBracket = (expression: string[]) => {
+  const invalidAdjustmentToClosingBracket = expression.some(
     (note, index, array) => {
       const nextNote = array[index + 1];
       return (isOperatorLabel(note) || note === "(") && nextNote === ")";
     },
   );
 
-  return oneNumberOnly || endsWithOperator || invalidAdjustmentToClosingBracket;
+  return invalidAdjustmentToClosingBracket
+    ? "Invalid adjustment to closing bracket"
+    : null;
+};
+
+const haveStructureErrors = (expression: string[]) => {
+  const oneNumberOnlyError = oneNumberOnly(expression);
+
+  const operatorInEdgesError = operatorInEdges(expression);
+
+  const invalidAdjustmentToClosingBracketError =
+    invalidAdjustmentToClosingBracket(expression);
+
+  return (
+    oneNumberOnlyError ||
+    operatorInEdgesError ||
+    invalidAdjustmentToClosingBracketError
+  );
 };
 
 const invalidChecks = (expression: string): ValidExpression => {
-  const validCharsExpression = [...expression].filter((n) => isNoteLabel(n));
+  const validCharsExpression = [...expression]
+    .filter((n) => isNoteLabel(n))
+    .join("");
+  const validNumbersExpression = validateNumbers(validCharsExpression);
 
-  if (!validBrackets(expression)) {
-    return {
-      canBeCalculated: false,
-      validExpression: validCharsExpression,
-    };
-  }
-
-  const validNumbersExpression = validateNumbers(validCharsExpression.join(""));
-
-  const canBeCalculated =
-    validNumbersExpression.canBeCalculated &&
-    !haveStructureProblems(validNumbersExpression.validExpression);
+  const validationError = validBrackets(expression)
+    ? validNumbersExpression.validationError
+    : "Invalid brackets";
 
   return {
-    canBeCalculated,
+    validationError,
     validExpression: validNumbersExpression.validExpression,
   };
 };
@@ -91,11 +107,12 @@ export const validateExpression = (expression: string): ValidExpression => {
   );
   const validExpression = addMultiplicationOperator(deletedAdjacentOperators);
 
-  const canBeCalculated =
-    validNumbersExpression.canBeCalculated && !haveStructureProblems(validExpression);
+  const validationError =
+    validNumbersExpression.validationError ||
+    haveStructureErrors(validExpression);
 
   return {
-    canBeCalculated,
+    validationError,
     validExpression,
   };
 };

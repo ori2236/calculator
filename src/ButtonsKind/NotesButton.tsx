@@ -15,7 +15,7 @@ interface NotesButtonProps {
 export const NotesButton = (props: NotesButtonProps) => {
     const { setNewExpression, note, expression, inputRef, cursorPositionRef } = props;
 
-    const handleInsertionInExpression = () => {
+    const handleExpressionChange = () => {
         const inputObject = inputRef.current;
         const startCurserIndex = inputObject?.selectionStart ?? expression.length - 1;
         const endCurserIndex = inputObject?.selectionEnd ?? expression.length - 1;
@@ -28,7 +28,7 @@ export const NotesButton = (props: NotesButtonProps) => {
     const icon = note === "*" ? <LiaTimesSolid /> : null;
     return <Button
         label={note}
-        onPress={handleInsertionInExpression}
+        onPress={handleExpressionChange}
         icon={icon}
     />;
 }

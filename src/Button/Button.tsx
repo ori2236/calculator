@@ -12,7 +12,9 @@ export const Button = ({ label, onPress, icon }: ButtonProps) => {
     const handleMovedFocus = (e: React.MouseEvent<HTMLButtonElement>) =>
         e.preventDefault();
 
-    const buttonStyle = isNumberLabel(label) ? "reglarButton" : "specialButton";
+    const buttonKind = isNumberLabel(label) ? "regularButton" : "specialButton";
+    const buttonStyle = `${buttonKind} ${label}`;
+
     return (
         <button onMouseDown={handleMovedFocus} onClick={onPress} className={`${buttonStyle} ${label}`} data-label={label}>
             {icon ?? label}

@@ -1,20 +1,22 @@
-import type { OperatorNote } from "./LabelTypes";
+import type { OperatorNote, ValidationError } from "./LabelTypes";
 
+export type AnswerLine = number | ValidationError;
 export type Operator = { note: OperatorNote; priority: number };
 
 export type ValidExpression = {
-  canBeCalculated: boolean;
+  validationError: ValidationError | null;
   validExpression: string[];
 };
 
 export interface CalculateExpression {
   validExpression: string;
-  answer: number | null;
+  answer: AnswerLine;
 }
 
 export interface Stacks {
   operatorsStack: Operator[];
   numbersStack: number[];
+  validationError: ValidationError | null;
 }
 
 export interface StacksState extends Stacks {

@@ -18,6 +18,17 @@ export type Note = (typeof notes)[number];
 
 export type Label = Note | SpecialLabel;
 
+const validationErrors = [
+  "Empty expression",
+  "Can't divide by 0",
+  "Invalid brackets",
+  "One number only",
+  "Operator in edges",
+  "Invalid adjustment to closing bracket",
+  "A number endes with decimal point",
+] as const;
+export type ValidationError = (typeof validationErrors)[number];
+
 export const gridLabels: Label[] = [
   "AC",
   "(",
@@ -54,15 +65,19 @@ const isNumberLabelNoE = (tokens: string) => {
 };
 
 export const isOperatorLabel = (token: string): token is OperatorNote => {
-  return operators.some((op) => op === token);
+  return operators.some((operator) => operator === token);
 };
 
 export const isBracketsLabel = (token: string): token is Bracket => {
-  return brackets.some((b) => b === token);
+  return brackets.some((bracket) => bracket === token);
 };
 
 export const isSpecialLabel = (token: string): token is SpecialLabel => {
-  return specialLabels.some((s) => s === token);
+  return specialLabels.some((specialLabel) => specialLabel === token);
+};
+
+export const isValidationError = (token: string): token is ValidationError => {
+  return validationErrors.some((error) => error === token);
 };
 
 export const isNoteLabel = (token: string): token is Note => {
