@@ -18,11 +18,14 @@ const isSingleNumberExpression = (expression: string[]) => {
 const oneNumberOnly = (expression: string[]): ValidationError | null =>
   isSingleNumberExpression(expression) ? "One number only" : null;
 
-const operatorInEdges = (expression: string[]): ValidationError | null =>
-  isOperatorLabel(expression[0]) ||
-  isOperatorLabel(expression[expression.length - 1])
-    ? "Operator in edges"
-    : null;
+const operatorInEdges = (expression: string[]): ValidationError | null => {
+  const startsWithOperator =
+    isOperatorLabel(expression[0]) && expression[0] !== "-";
+  const endsWithOperator = isOperatorLabel(expression[expression.length - 1]);
+  return startsWithOperator || endsWithOperator ? "Operator in edges" : null;
+
+};
+
 
 const invalidAdjustmentToClosingBracket = (expression: string[]) => {
   const invalidAdjustmentToClosingBracket = expression.some(
@@ -58,7 +61,7 @@ const invalidChecks = (expression: string): ValidExpression => {
     .join("");
   const validNumbersExpression = validateNumbers(validCharsExpression);
 
-  const validationError = validBrackets(expression)
+  const validationError = validBrackets(validCharsExpression)
     ? validNumbersExpression.validationError
     : "Invalid brackets";
 

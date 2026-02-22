@@ -58,7 +58,7 @@ export const Display = (props: DisplayProps) => {
         }
     };
 
-    const validOutput = answerLine === "Empty expression" ? "" : answerLine;
+    const onlyImportantErrors = answerLine === "Empty expression" || answerLine === "One number only" ? "" : answerLine;
 
     const isError = isValidationError(answerLine.toString())
     const lineKind = isError ? "answerLine errorLine" : "answerLine resultLine";
@@ -71,7 +71,7 @@ export const Display = (props: DisplayProps) => {
                 className="expressionLine"
                 onKeyDown={handleKeyDown}
             />
-            <p className={lineKind}>{validOutput}</p>
+            <p className={lineKind}>{onlyImportantErrors}</p>
         </div>
     )
 }

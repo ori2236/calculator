@@ -24,7 +24,9 @@ const operatorsPriorities: Record<OperatorNote, number> = {
 const getExtraPriority = (array: string[], currentIndex: number) => {
   if (currentIndex === 0) return 1.5;
   const previousNote = array[currentIndex - 1];
-  return previousNote === "*" || previousNote === "/" ? 1.5 : 0;
+  return previousNote === "*" || previousNote === "/" || previousNote === "("
+    ? 1.5
+    : 0;
 };
 
 const applyOperatorFactory = (
