@@ -1,0 +1,14 @@
+.frame {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 500px;
+  border-radius: 15px;
+  border: 1px solid black;
+  background-color: #303e53;
+  box-shadow: 0 0 5px black;
+}
+
+.buttons {
+  width: 90%;
+}

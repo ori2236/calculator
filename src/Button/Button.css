@@ -1,0 +1,46 @@
+:root {
+  --fontSize: 30px;
+}
+
+button {
+  font-size: var(--fontSize);
+  cursor: pointer;
+  border-radius: 5px;
+  color: white;
+  box-shadow: 0 0 1px black;
+  user-select: none;
+}
+
+button:hover {
+  filter: brightness(1.1);
+}
+
+button:active {
+  transform: translateY(2px);
+}
+
+.specialButton {
+  background-color: #353d4c;
+}
+
+.regularButton {
+  background-color: #515e76;
+}
+
+.delete,
+.\* {
+  font-size: calc(var(--fontSize) - 5px);
+  padding-top: 5px;
+}
+
+.AC {
+  background-color: #D56D2B;
+}
+
+.\(,
+.\),
+.\.,
+.\- {
+  font-size: calc(var(--fontSize) - 5px);
+  padding-bottom: 5px;
+}

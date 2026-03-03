@@ -4,11 +4,11 @@
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
   ],
-  "noUnusedLocals": true,
   "compilerOptions": {
     "module": "ESNext",
-    "types": ["node"],
+    "types": ["vitest/globals", "node"],
     "jsx": "react-jsx",
     "esModuleInterop": true,
+    "noUnusedLocals": false,
   },
 }
