@@ -1,4 +1,5 @@
-import type { OperatorNote, ValidationError } from "./LabelTypes";
+import type { OperatorNote } from "./LabelTypes";
+import type { ValidationError } from "./ValidationErrorTypes";
 
 export type AnswerLine = number | ValidationError;
 export type Operator = { note: OperatorNote; priority: number };

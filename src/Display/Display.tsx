@@ -1,7 +1,7 @@
 import "./Display.css"
 import type { AnswerLine } from "../Types/CalculationTypes";
 import { useLayoutEffect, type RefObject } from "react";
-import { isValidationError } from "../Types/LabelTypes";
+import { isValidationError, validationErrors, type ValidationError } from "../Types/ValidationErrorTypes";
 
 export const keepCaretVisible = (input: HTMLInputElement, curserPosition: number) => {
     const canvas = document.createElement("canvas");
@@ -58,10 +58,15 @@ export const Display = (props: DisplayProps) => {
         }
     };
 
-    const onlyImportantErrors = answerLine === "Empty expression" || answerLine === "One number only" ? "" : answerLine;
+    const answerToken = answerLine.toString();
+    const errorKey: ValidationError | null = isValidationError(answerToken) ? answerToken : null;
 
-    const isError = isValidationError(answerLine.toString())
-    const lineKind = isError ? "answerLine errorLine" : "answerLine resultLine";
+    const shouldHideError = errorKey === "EmptyExpression" || errorKey === "OneNumberOnly";
+
+    const answer = errorKey === null ? answerLine :
+        shouldHideError ? "" : validationErrors[errorKey];
+
+    const lineKind = errorKey && !shouldHideError ? "answerLine errorLine" : "answerLine resultLine";
 
     return (
         <div className="display">
@@ -71,7 +76,7 @@ export const Display = (props: DisplayProps) => {
                 className="expressionLine"
                 onKeyDown={handleKeyDown}
             />
-            <p className={lineKind}>{onlyImportantErrors}</p>
+            <p className={lineKind}>{answer}</p>
         </div>
     )
 }

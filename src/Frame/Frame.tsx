@@ -6,7 +6,7 @@ import type { AnswerLine } from '../Types/CalculationTypes';
 
 export const Frame = () => {
   const [expression, setExpression] = useState("");
-  const [answerLine, setAnswerLine] = useState<AnswerLine>("Empty expression");
+  const [answerLine, setAnswerLine] = useState<AnswerLine>("EmptyExpression");
   const inputRef = useRef<HTMLInputElement | null>(null);
   const cursorPositionRef = useRef<number | null>(null);
 

@@ -8,6 +8,7 @@ button {
   border-radius: 5px;
   color: white;
   box-shadow: 0 0 1px black;
+  user-select: none;
 }
 
 button:hover {

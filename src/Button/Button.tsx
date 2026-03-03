@@ -1,5 +1,5 @@
 import "./Button.css"
-import { isBracketsLabel, isNumberLabel, isOperatorLabel, isSpecialLabel, type Label } from "../Types/LabelTypes";
+import { isNumberLabel, type Label } from "../Types/LabelTypes";
 import type { JSX } from "react";
 
 interface ButtonProps {

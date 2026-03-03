@@ -1,5 +1,6 @@
 import "./ButtonsGrid.css";
-import { gridLabels, isValidationError, isNoteLabel, isSpecialLabel, type Label, type SpecialLabel } from "../Types/LabelTypes";
+import { gridLabels, isNoteLabel, isSpecialLabel, type Label, type SpecialLabel } from "../Types/LabelTypes";
+import { isValidationError } from "../Types/ValidationErrorTypes";
 import { calcExpression } from "../services/calcExpression";
 import { DeleteAllButton } from "../ButtonsKind/DeleteAllButton";
 import { DeleteButton } from "../ButtonsKind/DeleteButton";
@@ -60,6 +61,7 @@ export const ButtonsGrid = (props: ButtonsGridProps) => {
                 setNewExpression={setNewExpression}
                 answerLine={answerLine}
                 expression={expression}
+                cursorPositionRef={cursorPositionRef}
             />
         ),
     };
@@ -81,7 +83,7 @@ export const ButtonsGrid = (props: ButtonsGridProps) => {
                 />
             );
         }
-        
+
         return null;
     };
 

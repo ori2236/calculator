@@ -53,7 +53,7 @@ const applyTopOperator = (
     return {
       operatorsStack: [],
       numbersStack: [],
-      validationError: "Can't divide by 0",
+      validationError: "DivisionByZero",
     };
   const firstNum = isUnaryMinus ? 0 : numbersStack[numbersStack.length - 2];
 
@@ -79,11 +79,17 @@ const calculateOperators = (
 ): Stacks => {
   const calcedArrays = operatorsStack.reduceRight<StopState>(
     (state) => {
-      if (state.stopped || state.operatorsStack.length === 0 || state.validationError) return state;
+      if (
+        state.stopped ||
+        state.operatorsStack.length === 0 ||
+        state.validationError
+      )
+        return state;
 
       const topOperator = state.operatorsStack[state.operatorsStack.length - 1];
 
-      if (currentPriority > topOperator.priority) return { ...state, stopped: true };
+      if (currentPriority > topOperator.priority)
+        return { ...state, stopped: true };
 
       const arrays = applyTopOperator(state.operatorsStack, state.numbersStack);
       return { ...arrays, stopped: !!arrays.validationError };
@@ -154,7 +160,7 @@ const calculateResult = (validExpressionArray: string[]) => {
 };
 
 export const calcExpression = (expression: string): CalculateExpression => {
-  if (!expression) return { validExpression: "", answer: "Empty expression" };
+  if (!expression) return { validExpression: "", answer: "EmptyExpression" };
 
   const { validationError, validExpression: validExpressionArray } =
     validateExpression(expression);

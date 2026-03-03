@@ -3,8 +3,8 @@ import {
   isNoteLabel,
   isNumberLabel,
   isOperatorLabel,
-  type ValidationError,
 } from "../Types/LabelTypes";
+import type { ValidationError } from "../Types/ValidationErrorTypes";
 import { validateNumbers } from "./validateNumbers";
 import { validBrackets } from "./validBrackets";
 
@@ -16,18 +16,18 @@ const isSingleNumberExpression = (expression: string[]) => {
 };
 
 const oneNumberOnly = (expression: string[]): ValidationError | null =>
-  isSingleNumberExpression(expression) ? "One number only" : null;
+  isSingleNumberExpression(expression) ? "OneNumberOnly" : null;
 
 const operatorInEdges = (expression: string[]): ValidationError | null => {
   const startsWithOperator =
     isOperatorLabel(expression[0]) && expression[0] !== "-";
   const endsWithOperator = isOperatorLabel(expression[expression.length - 1]);
-  return startsWithOperator || endsWithOperator ? "Operator in edges" : null;
-
+  return startsWithOperator || endsWithOperator ? "OperatorInEdges" : null;
 };
 
-
-const invalidAdjustmentToClosingBracket = (expression: string[]) => {
+const invalidAdjustmentToClosingBracket = (
+  expression: string[],
+): ValidationError | null => {
   const invalidAdjustmentToClosingBracket = expression.some(
     (note, index, array) => {
       const nextNote = array[index + 1];
@@ -36,7 +36,7 @@ const invalidAdjustmentToClosingBracket = (expression: string[]) => {
   );
 
   return invalidAdjustmentToClosingBracket
-    ? "Invalid adjustment to closing bracket"
+    ? "InvalidAdjustmentToClosingBracket"
     : null;
 };
 
@@ -63,7 +63,7 @@ const invalidChecks = (expression: string): ValidExpression => {
 
   const validationError = validBrackets(validCharsExpression)
     ? validNumbersExpression.validationError
-    : "Invalid brackets";
+    : "InvalidBrackets";
 
   return {
     validationError,
